@@ -5,12 +5,15 @@ Created on Mon Jan  6 14:46:45 2025
 @author: biol0117
 """
 
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QGroupBox, QGridLayout, QLabel, QSpinBox, QFrame, QDoubleSpinBox, QComboBox, QCheckBox, QLineEdit, QPushButton, QFileDialog, QMessageBox
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QGroupBox, QGridLayout, QLabel, QSpinBox, QFrame
+from PyQt5.QtWidgets import QDoubleSpinBox, QComboBox, QCheckBox, QLineEdit, QPushButton, QFileDialog
+from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtGui import QIcon, QPalette, QColor
 from PyQt5.QtCore import Qt
 from pathlib import Path
 import numpy as np
 import re
+
 
 class AdvParams():
     """UI component values for the advanced parameters window. """
@@ -31,7 +34,7 @@ class AdvParams():
     tWake1 = 0
     tWake2 = 0
     alpha0Mean = 100000
-    alpha0Var = 0 
+    alpha0Var = 0
     alpha1 = 0
     amp = 0
     rainfallFile = False
@@ -44,10 +47,11 @@ class AdvParams():
     relTimesFile = False
     relTimesFilename = ""
     newDriverStart = 0
-       
+
+
 class AdvancedWindow(QDialog):
     """ Contains the simulation's advanced parameter UI components and applies the changes. """
-    
+
     def __init__(self, parentWin):
         """
         Parameters
@@ -56,52 +60,52 @@ class AdvancedWindow(QDialog):
             Parent window.
         """
         super().__init__()
-        self.title = 'Advanced parameters' 
+        self.title = 'Advanced parameters'
         self.left = 700
         self.top = 200
         self.width = 400
         self.height = 700
-        self.setWindowIcon(QIcon('web.png')) 
-        self.setWindowFlags(self.windowFlags() ^ Qt.WindowContextHelpButtonHint) # removes window help button
+        self.setWindowIcon(QIcon('web.png'))
+        self.setWindowFlags(self.windowFlags() ^ Qt.WindowContextHelpButtonHint)  # removes window help button
         self.parentWindow = parentWin
-        
+
         self.lastVals = AdvParams()
         self.rainfallFile = None
         self.coordsFile = None
         self.relTimesFile = None
-    
-        self.initUI()    
-        
-    def initUI(self):  
+
+        self.initUI()
+
+    def initUI(self):
         """ Initialises the UI. """
         self.setWindowTitle(self.title)
-        self.setGeometry(self.left, self.top, self.width, self.height) # sets position and size of window
-    
-        self.createGridLayout() # creates layout to place widgets in window
+        self.setGeometry(self.left, self.top, self.width, self.height)  # sets position and size of window
+
+        self.createGridLayout()  # creates layout to place widgets in window
         windowLayout = QVBoxLayout()
         windowLayout.addWidget(self.horizontalGroupBox)
         self.setLayout(windowLayout)
         self.openWin()
-        
+
     def openWin(self):
         """ Opens the window if closed and moves it to the top layer. """
         self.show()
-        self.activateWindow() # moves the window to the top
-        self.saveValues() # save starting values in case need to reset when close window without saving
+        self.activateWindow()  # moves the window to the top
+        self.saveValues()  # save starting values in case need to reset when close window without saving
         self.okBtn.setDefault(True)
         self.okBtn.setAutoDefault(True)
-        
+
     def closeEvent(self, event):
-        """ 
-        Closes the window without applying the most recent changes. 
+        """
+        Closes the window without applying the most recent changes.
         Resets the parameter boxes to the last values applied.
-        
+
         Parameters
         ----------
         event : QCloseEvent
         """
         self.hide()
-    
+
         # reset all values to their defaults
         self.muJSB.setValue(self.lastVals.muJ)
         self.muASB.setValue(self.lastVals.muA)
@@ -131,11 +135,11 @@ class AdvancedWindow(QDialog):
         self.gammaSB.setValue(self.lastVals.gamma)
         self.relTimesFileCheckbox.setChecked(self.lastVals.relTimesFile)
         self.relTimesFilenameEdit.setText(self.lastVals.relTimesFilename)
-        
-        self.applyBtn.setEnabled(False) # closing resets changes so don't need this enabled anymore
-        
+
+        self.applyBtn.setEnabled(False)  # closing resets changes so don't need this enabled anymore
+
         event.ignore()
-        
+
     def saveValues(self):
         """ Saves the last applied changes to UI parameter box values/states. """
         self.lastVals.muJ = self.muJSB.value()
@@ -168,7 +172,7 @@ class AdvancedWindow(QDialog):
         self.lastVals.relTimesFile = self.relTimesFileCheckbox.isChecked()
         self.lastVals.relTimesFilename = self.relTimesFilenameEdit.text()
         if self.relTimesFileCheckbox.isChecked() and Path(self.relTimesFilenameEdit.text()).exists():
-            with open(self.relTimesFilenameEdit.text(), 'r') as file: 
+            with open(self.relTimesFilenameEdit.text(), 'r') as file:
                 lines = file.readlines()
                 self.lastVals.newDriverStart = lines[0]
 
@@ -177,7 +181,7 @@ class AdvancedWindow(QDialog):
         self.rainfallFile = self.lastVals.rainfallFilename
         self.coordsFile = self.lastVals.patchCoordsFilename
         self.relTimesFile = self.lastVals.relTimesFilename
-    
+
     def getParams(self):
         """
         Returns
@@ -187,18 +191,18 @@ class AdvancedWindow(QDialog):
 
         """
         return self.lastVals
-    
+
     def createGridLayout(self):
         """Contains all widgets and sets the layout for the advanced parameters window."""
         self.horizontalGroupBox = QGroupBox()
         self.layout = QGridLayout()
-        
+
         lifeTitle = QLabel("Mosquito life processes")
         self.muJLabel = QLabel("juvenile mortality rate")
         self.muJLabel.setToolTip("Juvenile density independent mortality rate per day.")
         self.muJSB = QDoubleSpinBox()
         self.muJSB.setMinimum(0)
-        self.muJSB.setMaximum(0.99) # should not include 1
+        self.muJSB.setMaximum(0.99)  # should not include 1
         self.muJSB.setValue(0.05)
         self.muJSB.setSingleStep(0.05)
         self.muJSB.resize(self.muJSB.sizeHint())
@@ -207,8 +211,8 @@ class AdvancedWindow(QDialog):
         self.muALabel.setToolTip("Adult mortality rate per day.")
         self.muASB = QDoubleSpinBox()
         self.muASB.setDecimals(3)
-        self.muASB.setMinimum(0.001) # should not include 0
-        self.muASB.setMaximum(0.999) # should not include 1
+        self.muASB.setMinimum(0.001)  # should not include 0
+        self.muASB.setMaximum(0.999)  # should not include 1
         self.muASB.setValue(0.125)
         self.muASB.setSingleStep(0.005)
         self.muASB.resize(self.muASB.sizeHint())
@@ -216,8 +220,8 @@ class AdvancedWindow(QDialog):
         self.betaLabel = QLabel("mating rate factor")
         self.betaLabel.setToolTip("Number of males in a patch when local females mate with probability ½ per day.")
         self.betaSB = QDoubleSpinBox()
-        self.betaSB.setMinimum(0.01) # should not include 0
-        self.betaSB.setMaximum(10000) # ?
+        self.betaSB.setMinimum(0.01)  # should not include 0
+        self.betaSB.setMaximum(10000)
         self.betaSB.setValue(100)
         self.betaSB.setSingleStep(10)
         self.betaSB.resize(self.betaSB.sizeHint())
@@ -225,7 +229,7 @@ class AdvancedWindow(QDialog):
         self.thetaLabel = QLabel("egg laying rate")
         self.thetaLabel.setToolTip("Average egg laying rate of wildtype females (eggs per day).")
         self.thetaSB = QDoubleSpinBox()
-        self.thetaSB.setMinimum(0.01) # should not include 0
+        self.thetaSB.setMinimum(0.01)  # should not include 0
         self.thetaSB.setMaximum(10000)
         self.thetaSB.setValue(9)
         self.thetaSB.resize(self.thetaSB.sizeHint())
@@ -233,7 +237,7 @@ class AdvancedWindow(QDialog):
         self.compPowerLabel = QLabel("juvenile survival factor")
         self.compPowerLabel.setToolTip("Parameter that controls the juvenile survival probability.")
         self.compPowerSB = QDoubleSpinBox()
-        self.compPowerSB.setMinimum(0.000000001) # should not include 0
+        self.compPowerSB.setMinimum(0.000000001)  # should not include 0
         self.compPowerSB.setMaximum(10000)
         self.compPowerSB.setDecimals(9)
         self.compPowerSB.setValue(0.066666667)
@@ -243,18 +247,18 @@ class AdvancedWindow(QDialog):
         self.minDevLabel = QLabel("juvenile min. development time")
         self.minDevLabel.setToolTip("Minimum development time for a juvenile (in days).")
         self.minDevSB = QSpinBox()
-        self.minDevSB.setMinimum(1) # should not include 0
+        self.minDevSB.setMinimum(1)  # should not include 0
         self.minDevSB.setMaximum(10000)
         self.minDevSB.setValue(10)
         self.minDevSB.resize(self.minDevSB.sizeHint())
         self.minDevSB.valueChanged.connect(self.enableApply)
-    
+
         line1 = QFrame()
         line1.setFrameShape(QFrame.HLine)
         pal = line1.palette()
         pal.setColor(QPalette.WindowText, QColor("lightGray"))
         line1.setPalette(pal)
-    
+
         dispTitle = QLabel("Dispersal")
         self.dispRateLabel = QLabel("dispersal rate")
         self.dispRateLabel.setToolTip("Adult dispersal rate.")
@@ -269,8 +273,8 @@ class AdvancedWindow(QDialog):
         self.maxDispLabel = QLabel("max. dispersal distance")
         self.maxDispLabel.setToolTip("Maximum dispersal distance at which two sites are connected.")
         self.maxDispSB = QDoubleSpinBox()
-        self.maxDispSB.setMinimum(0.01) # should not include 0
-        self.maxDispSB.setMaximum(10000) # should be side
+        self.maxDispSB.setMinimum(0.01)  # should not include 0
+        self.maxDispSB.setMaximum(10000)  # should be side
         self.maxDispSB.setValue(0.2)
         self.maxDispSB.resize(self.maxDispSB.sizeHint())
         self.maxDispSB.valueChanged.connect(self.enableApply)
@@ -278,17 +282,27 @@ class AdvancedWindow(QDialog):
         self.dispTypeCB = QComboBox()
         self.dispTypeCB.addItems(["Radial", "Distance kernel"])
         self.dispTypeCB.currentTextChanged.connect(self.enableApply)
-        
+
         line2 = QFrame()
         line2.setFrameShape(QFrame.HLine)
         line2.setPalette(pal)
-        
+
         self.aesTitle = QLabel("Aestivation")
         self.aesCheckbox = QCheckBox()
-        self.aesCheckbox.stateChanged.connect(lambda: self.checkboxState(self.aesCheckbox,
-            showLabelElements=[self.psiLabel, self.muAesLabel, self.tHide1Label, self.tHide2Label, self.tWake1Label, self.tWake2Label],
-            showNumElements=[self.psiSB, self.muAesSB, self.tHide1SB, self.tHide2SB, self.tWake1SB, self.tWake2SB])
-        )
+        self.aesCheckbox.stateChanged.connect(lambda:
+                                              self.checkboxState(self.aesCheckbox,
+                                                                 showLabelElements=[self.psiLabel,
+                                                                                    self.muAesLabel,
+                                                                                    self.tHide1Label,
+                                                                                    self.tHide2Label,
+                                                                                    self.tWake1Label,
+                                                                                    self.tWake2Label],
+                                                                 showNumElements=[self.psiSB,
+                                                                                  self.muAesSB,
+                                                                                  self.tHide1SB,
+                                                                                  self.tHide2SB,
+                                                                                  self.tWake1SB,
+                                                                                  self.tWake2SB]))
         self.aesCheckbox.stateChanged.connect(self.enableApply)
         self.psiLabel = QLabel("aestivation rate")
         self.psiLabel.setToolTip("Aestivation rate.")
@@ -319,7 +333,7 @@ class AdvancedWindow(QDialog):
         self.tHide2Label = QLabel("end hiding date")
         self.tHide2Label.setToolTip("End day of aestivation-hiding period (inclusive).")
         self.tHide2SB = QSpinBox()
-        self.tHide2SB.setMinimum(0) # should be t_hide1
+        self.tHide2SB.setMinimum(0)  # should be t_hide1
         self.tHide2SB.setMaximum(365)
         self.tHide2SB.setValue(0)
         self.tHide2SB.resize(self.tHide2SB.sizeHint())
@@ -335,7 +349,7 @@ class AdvancedWindow(QDialog):
         self.tWake2Label = QLabel("end waking date")
         self.tWake2Label.setToolTip("End day of aestivation-waking period (inclusive).")
         self.tWake2SB = QSpinBox()
-        self.tWake2SB.setMinimum(0) # should be t_wake1
+        self.tWake2SB.setMinimum(0)  # should be t_wake1
         self.tWake2SB.setMaximum(365)
         self.tWake2SB.setValue(0)
         self.tWake2SB.resize(self.tWake2SB.sizeHint())
@@ -352,16 +366,16 @@ class AdvancedWindow(QDialog):
         self.tWake1SB.hide()
         self.tWake2Label.hide()
         self.tWake2SB.hide()
-        
+
         line3 = QFrame()
         line3.setFrameShape(QFrame.HLine)
         line3.setPalette(pal)
-        
+
         seasonalityTitle = QLabel("Seasonality")
         self.alpha0MeanLabel = QLabel("population size factor")
         self.alpha0MeanLabel.setToolTip("Mean of the baseline contribution to the carrying capacity.")
         self.alpha0MeanSB = QDoubleSpinBox()
-        self.alpha0MeanSB.setMinimum(0.01) # should not include 0
+        self.alpha0MeanSB.setMinimum(0.01)  # should not include 0
         self.alpha0MeanSB.setMaximum(100000000)
         self.alpha0MeanSB.setValue(100000)
         self.alpha0MeanSB.setSingleStep(10000)
@@ -397,15 +411,16 @@ class AdvancedWindow(QDialog):
         self.rainfallFileLabel = QLabel("rainfall file")
         self.rainfallFileLabel.setToolTip("Rainfall data file")
         self.rainfallFileCheckbox = QCheckBox()
-        self.rainfallFileCheckbox.stateChanged.connect(lambda: self.checkboxState(self.rainfallFileCheckbox,
-            showLabelElements=[rainfallFileDialogBtn, self.respLabel], 
-            showNumElements=[self.respSB],
-            showTextElements=[self.rainfallFilenameEdit],
-            hideLabelElements=[self.ampLabel],
-            hideNumElements=[self.ampSB])
-        )
+        self.rainfallFileCheckbox.stateChanged.connect(lambda:
+                                                       self.checkboxState(self.rainfallFileCheckbox,
+                                                                          showLabelElements=[rainfallFileDialogBtn,
+                                                                                             self.respLabel],
+                                                                          showNumElements=[self.respSB],
+                                                                          showTextElements=[self.rainfallFilenameEdit],
+                                                                          hideLabelElements=[self.ampLabel],
+                                                                          hideNumElements=[self.ampSB]))
         self.rainfallFileCheckbox.stateChanged.connect(self.enableApply)
-        
+
         self.rainfallFilenameEdit = QLineEdit("")
         self.rainfallFilenameEdit.setReadOnly(True)
         self.rainfallFilenameEdit.textChanged.connect(self.enableApply)
@@ -423,11 +438,11 @@ class AdvancedWindow(QDialog):
         rainfallFileDialogBtn.hide()
         self.respLabel.hide()
         self.respSB.hide()
-        
+
         line4 = QFrame()
         line4.setFrameShape(QFrame.HLine)
         line4.setPalette(pal)
-        
+
         modelAreaTitle = QLabel("Model area")
         self.boundaryTypeLabel = QLabel("boundary type")
         self.boundaryTypeCB = QComboBox()
@@ -437,10 +452,8 @@ class AdvancedWindow(QDialog):
         self.coordsFileLabel = QLabel("patch coordinates file")
         self.coordsFileCheckbox = QCheckBox()
         self.coordsFileCheckbox.stateChanged.connect(lambda: self.checkboxState(self.coordsFileCheckbox,
-            showLabelElements=[coordsFileDialogBtn],
-            showTextElements=[self.coordsFilenameEdit]
-            )
-        )
+                                                                                showLabelElements=[coordsFileDialogBtn],
+                                                                                showTextElements=[self.coordsFilenameEdit]))
         self.coordsFileCheckbox.stateChanged.connect(self.enableApply)
         self.coordsFileLabel.hide()
         self.coordsFileCheckbox.hide()
@@ -451,11 +464,11 @@ class AdvancedWindow(QDialog):
         coordsFileDialogBtn.clicked.connect(lambda: self.openFileDialog(self.coordsFile, self.coordsFilenameEdit))
         self.coordsFilenameEdit.hide()
         coordsFileDialogBtn.hide()
-        
+
         line5 = QFrame()
         line5.setFrameShape(QFrame.HLine)
         line5.setPalette(pal)
-        
+
         inherTitle = QLabel("Gene drive resistance")
         self.gammaLabel = QLabel("resistance formation rate")
         self.gammaLabel.setToolTip("Rate of r2 allele formation from W/D meiosis.")
@@ -467,21 +480,20 @@ class AdvancedWindow(QDialog):
         self.gammaSB.setSingleStep(0.01)
         self.gammaSB.resize(self.gammaSB.sizeHint())
         self.gammaSB.valueChanged.connect(self.enableApply)
-        
+
         line6 = QFrame()
         line6.setFrameShape(QFrame.HLine)
         line6.setPalette(pal)
-        
+
         releaseTitle = QLabel("Gene drive release")
         self.relTimesFileLabel = QLabel("release times file")
         self.relTimesFileCheckbox = QCheckBox()
-        self.relTimesFileCheckbox.stateChanged.connect(lambda: self.checkboxState(self.relTimesFileCheckbox,
-            showLabelElements=[relTimesFileDialogBtn],
-            showTextElements=[self.relTimesFilenameEdit]
-            )
-        )
+        self.relTimesFileCheckbox.stateChanged.connect(lambda:
+                                                       self.checkboxState(self.relTimesFileCheckbox,
+                                                                          showLabelElements=[relTimesFileDialogBtn],
+                                                                          showTextElements=[self.relTimesFilenameEdit]))
         self.relTimesFileCheckbox.stateChanged.connect(self.enableApply)
-        
+
         self.relTimesFilenameEdit = QLineEdit("")
         self.relTimesFilenameEdit.setReadOnly(True)
         self.relTimesFilenameEdit.textChanged.connect(self.enableApply)
@@ -489,11 +501,11 @@ class AdvancedWindow(QDialog):
         relTimesFileDialogBtn.clicked.connect(lambda: self.openFileDialog(self.relTimesFile, self.relTimesFilenameEdit))
         self.relTimesFilenameEdit.hide()
         relTimesFileDialogBtn.hide()
-        
+
         line7 = QFrame()
         line7.setFrameShape(QFrame.HLine)
         line7.setPalette(pal)
-        
+
         self.okBtn = QPushButton("Ok")
         self.okBtn.setToolTip("Accept changes and close dialog.")
         self.okBtn.setAutoDefault(True)
@@ -503,7 +515,7 @@ class AdvancedWindow(QDialog):
         self.applyBtn.setToolTip("Apply changes.")
         self.applyBtn.setEnabled(False)
         self.applyBtn.clicked.connect(lambda: self.applyChanges("apply"))
-    
+
         self.layout.addWidget(lifeTitle, 5, 0)
         self.layout.addWidget(self.muJLabel, 6, 0)
         self.layout.addWidget(self.muJSB, 6, 1)
@@ -577,9 +589,9 @@ class AdvancedWindow(QDialog):
         self.layout.addWidget(line7, 37, 0, 1, 4)
         self.layout.addWidget(self.okBtn, 38, 2, 1, 1)
         self.layout.addWidget(self.applyBtn, 38, 3, 1, 1)
-        
+
         self.horizontalGroupBox.setLayout(self.layout)
-        
+
     def getParamsInfo(self):
         advSetInfo = AdvParams()
         advSetInfo.muJ = (self.muJLabel.text(), self.muJLabel.toolTip())
@@ -608,28 +620,29 @@ class AdvancedWindow(QDialog):
         advSetInfo.patchCoordsFile = (self.coordsFileLabel.text(), "")
         advSetInfo.gamma = (self.gammaLabel.text(), self.gammaLabel.toolTip())
         advSetInfo.relTimesFile = (self.relTimesFileLabel.text(), "")
-    
+
         return advSetInfo
-        
+
     def boundaryTypeState(self):
         """  Shows/hides extra UI components depending on the boundary type selected. """
         self.coordsFileCheckbox.setChecked(False)
         if self.boundaryTypeCB.currentText() == "Toroid":
             self.coordsFileLabel.hide()
             self.coordsFileCheckbox.hide()
-            
+
         if self.boundaryTypeCB.currentText() == "Edge":
             self.coordsFileLabel.show()
             self.coordsFileCheckbox.show()
-        
-    def checkboxState(self, checkBox, showLabelElements, showNumElements=[], showTextElements=[], hideLabelElements=[], hideNumElements=[]):
+
+    def checkboxState(self, checkBox, showLabelElements, showNumElements=[], showTextElements=[],
+                      hideLabelElements=[], hideNumElements=[]):
         """
-        Shows or hides UI components depending on the state of the checkbox. 
+        Shows or hides UI components depending on the state of the checkbox.
 
         Parameters
         ----------
         checkBox : QCheckBox
-        
+
         showLabelElements : list:QLabel
             Label elements to show when checkbox is checked.
         showNumElements : list:QSpinBox, optional
@@ -647,35 +660,35 @@ class AdvancedWindow(QDialog):
 
         """
         if checkBox.isChecked():
-            for l in showLabelElements:
-                l.show()
-            for l in showNumElements:
-                l.show()
-            for l in showTextElements:
-                l.show()
-            for l in hideLabelElements:
-                l.hide()
-            for l in hideNumElements:
-                l.hide()
-                l.setValue(0)
-            
+            for label in showLabelElements:
+                label.show()
+            for label in showNumElements:
+                label.show()
+            for label in showTextElements:
+                label.show()
+            for label in hideLabelElements:
+                label.hide()
+            for label in hideNumElements:
+                label.hide()
+                label.setValue(0)
+
         else:
-            for l in showLabelElements:
-                l.hide()
-            for l in showNumElements:
-                l.hide()
-                l.setValue(0)
-            for l in showTextElements:
-                l.hide()
-                l.clear()
-            for l in hideLabelElements:
-                l.show()
-            for l in hideNumElements:
-                l.show()
-        
+            for label in showLabelElements:
+                label.hide()
+            for label in showNumElements:
+                label.hide()
+                label.setValue(0)
+            for label in showTextElements:
+                label.hide()
+                label.clear()
+            for label in hideLabelElements:
+                label.show()
+            for label in hideNumElements:
+                label.show()
+
     def openFileDialog(self, filename, filenameEdit):
         """
-        Opens a file dialog box to select a file, saves the filename and updates the text edit box with the filename. 
+        Opens a file dialog box to select a file, saves the filename and updates the text edit box with the filename.
 
         Parameters
         ----------
@@ -690,13 +703,14 @@ class AdvancedWindow(QDialog):
 
         """
         fname, ok = QFileDialog.getOpenFileName(self, "Select a file", ".", "Text files (*.txt)")
-        if fname and not fname.isspace(): # check dialog hasn't been cancelled (which would return a null string)
+        if fname and not fname.isspace():  # check dialog hasn't been cancelled (which would return a null string)
             filename = Path(fname)
             filenameEdit.setText(str(filename))
-            
+
     def validParams(self):
         """
-        Checks the validity of parameters. Checks for interval errors and file value errors, if advanced parameter files have been provided.
+        Checks the validity of parameters. Checks for interval errors and file value errors,
+        if advanced parameter files have been provided.
 
         Returns
         -------
@@ -706,7 +720,7 @@ class AdvancedWindow(QDialog):
             Error messages.
 
         """
-        errs = 0 
+        errs = 0
         errMsgs = []
         maxT = self.parentWindow.getMaxT()
         numPat = self.parentWindow.getNumPat()
@@ -718,8 +732,8 @@ class AdvancedWindow(QDialog):
             if self.tWake2SB.value() < self.tWake1SB.value():
                 errs += 1
                 errMsgs.append("The end waking date must be equal to or larger than the start waking date.")
-        
-        # read files and check values        
+
+        # read files and check values
         if self.rainfallFileCheckbox.isChecked():
             if self.rainfallFilenameEdit.text() == "":
                 errs += 1
@@ -735,26 +749,28 @@ class AdvancedWindow(QDialog):
                                 errMsgs.append("Rainfall value r for day {} is out of bounds r ≥ 0.".format(i+1))
                     else:
                         errs += 1
-                        errMsgs.append("The number of daily rainfall values in the file is not 365 or equal to simulation time (where max_t ≥ 365).")
+                        errMsgs.append("The number of daily rainfall values in the file is not 365 or" +
+                                       " equal to simulation time (where max_t ≥ 365).")
                 except Exception as e:
                     errs += 1
                     errMsgs.append("An error occured with the rainfall file: {}".format(e))
-                
+
         if self.coordsFileCheckbox.isChecked():
             if self.coordsFilenameEdit.text() == "":
                 errs += 1
                 errMsgs.append("No patch coordinates file selected.")
             else:
-                # use this method to check the different data types 
-                with open(self.coordsFilenameEdit.text(), 'r') as file: 
+                # use this method to check the different data types
+                with open(self.coordsFilenameEdit.text(), 'r') as file:
                     lines = file.readlines()
                     if len(lines) != numPat:
                         errs += 1
-                        errMsgs.append("The number of patch coordinates in the file does not match the parameter for number of patches.")
+                        errMsgs.append("The number of patch coordinates in the file does not match " +
+                                       "the parameter for number of patches.")
                     else:
                         for i in range(0, len(lines)):
-                            line = lines[i].strip() # strip surrounding whitespace
-                            x, y, isRelSite = line.split() # split into column values
+                            line = lines[i].strip()  # strip surrounding whitespace
+                            x, y, isRelSite = line.split()  # split into column values
                             try:
                                 x = float(x)
                             except Exception as e:
@@ -765,17 +781,17 @@ class AdvancedWindow(QDialog):
                             except Exception as e:
                                 errs += 1
                                 errMsgs.append("An error occured for patch coordinate y{}: {}".format(i+1, e))
-                            if re.match(r"^y|n$", isRelSite) == None:
+                            if re.match(r"^y|n$", isRelSite) is None:
                                 errs += 1
-                                errMsgs.append("Patch coordinate {} has an invalid release site choice.".format(i+1))   
-        
+                                errMsgs.append("Patch coordinate {} has an invalid release site choice.".format(i+1))
+
         if self.relTimesFileCheckbox.isChecked():
             if self.relTimesFilenameEdit.text() == "":
                 errs += 1
                 errMsgs.append("No release times file selected.")
             else:
                 # use this method to check for floats (cannot convert floats to ints)
-                with open(self.relTimesFilenameEdit.text(), 'r') as file: 
+                with open(self.relTimesFilenameEdit.text(), 'r') as file:
                     lines = file.readlines()
                     for i in range(0, len(lines)):
                         dp = lines[i].strip()
@@ -786,22 +802,24 @@ class AdvancedWindow(QDialog):
                                 errMsgs.append("Release time t{} is out of bounds 0 ≤ t ≤ max_t.".format(i+1))
                         else:
                             errMsgs.append("Release time t{} is not an integer.".format(i+1))
-                
+
         # give warnings but still allow the values - no errors thrown
         if self.aesCheckbox.isChecked():
-            if (self.tHide1SB.value() > maxT) or (self.tHide2SB.value() > maxT) or (self.tWake1SB.value() > maxT) or (self.tWake2SB.value() > maxT):
-                errMsgs.append("The aestivation interval times are larger than max_t.\nThe simulation will only run partly through the aestivation period.")
+            if ((self.tHide1SB.value() > maxT) or (self.tHide2SB.value() > maxT) or
+                (self.tWake1SB.value() > maxT) or (self.tWake2SB.value() > maxT)):
+                errMsgs.append("The aestivation interval times are larger than max_t.\n" +
+                               "The simulation will only run partly through the aestivation period.")
 
         isValid = True
         if errs != 0:
             isValid = False
-        return (isValid, errMsgs)   
-        
+        return (isValid, errMsgs)
+
     def enableApply(self):
         """ Enables the apply button. """
-        if self.applyBtn.isEnabled() == False:
+        if self.applyBtn.isEnabled() is False:
             self.applyBtn.setEnabled(True)
-        
+
     def applyChanges(self, btn):
         """
         Apply and save changes to parameter values with dialog button if values are valid. Otherwise, show error message.
@@ -817,7 +835,7 @@ class AdvancedWindow(QDialog):
         None.
 
         """
-        # only apply changes if pass bound and other checks  
+        # only apply changes if pass bound and other checks
         isValid, errMsgs = self.validParams()
         if isValid:
             if errMsgs:
@@ -825,7 +843,7 @@ class AdvancedWindow(QDialog):
                 QMessageBox.information(self, "Info", errMsgs)
             self.saveValues()
             self.applyBtn.setEnabled(False)
-            if btn == "ok": # close dialog too if using ok button
+            if btn == "ok":  # close dialog too if using ok button
                 self.accept()
         else:
             errMsgs = "\n".join(errMsgs)

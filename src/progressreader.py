@@ -31,12 +31,13 @@ class ProgressReader(QObject):
                     with open(self.files[i], "r") as f:
                         lines = f.readlines()
                         if len(lines) <= 2:
-                            progress = (i * (self.maxT+1)) # include initialisation day
-                        else: 
-                            progress = (i * (self.maxT+1)) + (len(lines) - 2) # subtract two header lines (but include initialisation day)
+                            progress = (i * (self.maxT+1))  # include initialisation day
+                        else:
+                            progress = ((i * (self.maxT+1)) +
+                                        (len(lines) - 2))  # subtract two header lines (but include initialisation day)
                         self.progress.emit(progress)
-    
-                        if (len(lines) - 3) >= self.maxT: # without two header lines and initialisation day
+
+                        if (len(lines) - 3) >= self.maxT:  # without two header lines and initialisation day
                             self.running = False
                             break
                 self.timer.start(500)  # prevent excessive CPU usage
