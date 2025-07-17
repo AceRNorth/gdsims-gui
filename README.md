@@ -1,7 +1,7 @@
 # GDSiMS GUI
-GDSiMS GUI is a Graphical User Interface (GUI) for [GDSiMS](https://github.com/AceRNorth/GeneralMetapop): the Gene Drive Simulator of Mosquito Spread, a model program developed by Ace R. North and Sara Perez Vizan. 
+GDSiMS GUI is a Graphical User Interface (GUI) for [GDSiMS](https://github.com/AceRNorth/gdsims): the Gene Drive Simulator of Mosquito Spread, a model program developed by Ace R. North and Sara Perez Vizan. 
 
-Full documentation website for GDSiMS and GDSiMS GUI [here](https://acernorth.github.io/GeneralMetapop/ ) (with GUI docs under the GUI tab).
+Full documentation website for GDSiMS and GDSiMS GUI [here](https://acernorth.github.io/gdsims/ ) (with GUI docs under the GUI tab).
 
 GDSiMS GUI is a graphical user interface for a malaria mosquito population model program. The model simulates the potential of gene drive technology to suppress mosquito populations and thus reduce malaria transmission. Gene drives are genetic elements that can quickly spread through a population via super-Mendelian inheritance frequencies (>50%). They can be engineered with specific properties to e.g. suppress mosquito populations via reduced female fertility (as modelled here). Our program can inform current gene drive development research, policy and regulation. 
 
@@ -62,7 +62,7 @@ Old versions of the distributions are available on the repository via git clone 
    
       ```bash
       cd C:\Users\MyUser\Projects
-      git clone https://github.com/AceRNorth/GDSiMS.git
+      git clone https://github.com/AceRNorth/gdsims-gui.git
       ```
    ii. Alternatively, download the files as a ZIP folder, unzip and move to your chosen directory.
    
@@ -110,7 +110,7 @@ Old versions of the distributions are available on the repository via git clone 
    
    ```bash
    cd /Users/username/Documents/
-   git clone https://github.com/AceRNorth/GDSiMS.git
+   git clone https://github.com/AceRNorth/gdsims-gui.git
    ```
    
    Note: Mac users must clone the repository. ZIP downloading will not work due to the way the large .dmg file has been stored on GitHub.
