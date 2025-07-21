@@ -158,35 +158,25 @@ class TotalsGenPlotCanvas(PlotCanvas):
         totals = np.loadtxt(file, skiprows=2, ndmin=2)
         times = totals[0:, 0]
         total_males = totals[0:, 1:]
-        for line in lines:  # keep same colours for same type of line
-            lbl = ""
-            col = "mediumturquoise"
 
-            if line == 0:
-                lbl = "$M_{WW}$"
-                col = "mediumturquoise"
-            elif line == 1:
-                lbl = "$M_{WD}$"
-                col = "darkcyan"
-            elif line == 2:
-                lbl = "$M_{DD}$"
-                col = "royalblue"
-            elif line == 3:
-                lbl = "$M_{WR}$"
-                col = "slategray"
-            elif line == 4:
-                lbl = "$M_{RR}$"
-                col = "rebeccapurple"
-            elif line == 5:
-                lbl = "$M_{DR}$"
-                col = "darkviolet"
-            elif line == 6:
-                lbl = "$M_{WW}$+$M_{WD}$+\n$M_{DD}$+$M_{WR}$+\n$M_{RR}$+$M_{DR}$"
-                col = "black"
-            elif line == 7:
-                lbl = "$M_{WW}$+$M_{WD}$+\n$M_{WR}$"
-                col = "hotpink"
+        labels = ["$M_{WW}$",
+                  "$M_{WD}$",
+                  "$M_{DD}$",
+                  "$M_{WR}$",
+                  "$M_{RR}$",
+                  "$M_{DR}$",
+                  "$M_{WW}$+$M_{WD}$+\n$M_{DD}$+$M_{WR}$+\n$M_{RR}$+$M_{DR}$",
+                  "$M_{WW}$+$M_{WD}$+\n$M_{WR}$"]
+        colours = ["mediumturquoise",
+                   "darkcyan",
+                   "royalblue",
+                   "slategray",
+                   "rebeccapurple",
+                   "darkviolet",
+                   "black",
+                   "hotpink"]
 
+        for line in lines:
             y = []
             if line == 6:
                 y = np.sum(total_males, axis=1).tolist()
@@ -194,7 +184,7 @@ class TotalsGenPlotCanvas(PlotCanvas):
                 y = np.sum(total_males[:, (0, 1, 3)], axis=1).tolist()
             if line >= 0 and line < 6:
                 y = total_males[:, line]
-            self.axes.plot(times, y, label=lbl, color=col)
+            self.axes.plot(times, y, label=labels[line], color=colours[line])  # keep same colours for same type of line
 
         self.axes.set_xlabel("Day")
         self.axes.set_ylabel("Total number of individuals")
@@ -245,44 +235,25 @@ class TotalsAllelePlotCanvas(PlotCanvas):
         DR = total_males[:, 5]
 
         for line in lines:  # keep same colours for same type of line
-            lbl = ""
-            col = "mediumturquoise"
-
-            if line == 0:
-                lbl = "wild"
-                col = "hotpink"
-            elif line == 1:
-                lbl = "drive"
-                col = "royalblue"
-            elif line == 2:
-                lbl = "r2 (non-functional) resistance"
-                col = "rebeccapurple"
+            labels = ["wild",
+                      "drive",
+                      "r2 (non-functional) resistance"]
+            colours = ["hotpink",
+                       "royalblue",
+                       "rebeccapurple"]
 
             y = []
             for i in range(0, len(WW)):
+                top = [(WW[i] + WD[i] + WR[i]),  # wild
+                       (WD[i] + DD[i] + DR[i]),  # drive
+                       (WR[i] + RR[i] + DR[i])]  # r2 resistance
                 bottom = WW[i] + WD[i] + DD[i] + WR[i] + RR[i] + DR[i]
-                if line == 0:
-                    top = WW[i] + WD[i] + WR[i]
-                    if bottom == 0:
-                        result = 0
-                    else:
-                        result = top / bottom
-                    y.append(result)
-                if line == 1:
-                    top = WD[i] + DD[i] + DR[i]
-                    if bottom == 0:
-                        result = 0
-                    else:
-                        result = top / bottom
-                    y.append(result)
-                if line == 2:
-                    top = WR[i] + RR[i] + DR[i]
-                    if bottom == 0:
-                        result = 0
-                    else:
-                        result = top / bottom
-                    y.append(result)
-            self.axes.plot(times, y, label=lbl, color=col)
+                if bottom == 0:
+                    result = 0
+                else:
+                    result = top[line] / bottom
+                y.append(result)
+            self.axes.plot(times, y, label=labels[line], color=colours[line])
 
         self.axes.set_xlabel("Day")
         self.axes.set_ylabel("Allele frequency")

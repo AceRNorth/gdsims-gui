@@ -634,8 +634,8 @@ class AdvancedWindow(QDialog):
             self.coordsFileLabel.show()
             self.coordsFileCheckbox.show()
 
-    def checkboxState(self, checkBox, showLabelElements, showNumElements=[], showTextElements=[],
-                      hideLabelElements=[], hideNumElements=[]):
+    def checkboxState(self, checkBox, showLabelElements, showNumElements=None, showTextElements=None,
+                      hideLabelElements=None, hideNumElements=None):
         """
         Shows or hides UI components depending on the state of the checkbox.
 
@@ -646,45 +646,40 @@ class AdvancedWindow(QDialog):
         showLabelElements : list:QLabel
             Label elements to show when checkbox is checked.
         showNumElements : list:QSpinBox, optional
-            Number-based box elements to show when checkbox is checked. The default is [].
+            Number-based box elements to show when checkbox is checked. The default is None.
         showTextElements : list:QLineEdit, optional
-            Text edit elements to show when checkbox is checked. The default is [].
+            Text edit elements to show when checkbox is checked. The default is None.
         hideLabelElements : list:QLabel, optional
-            Label elements to hide when checkbox is checked. The default is [].
+            Label elements to hide when checkbox is checked. The default is None.
         hideNumElements : list:QSpinBox, optional
-            Number-based box elements to hide when checkbox is checked. The default is [].
+            Number-based box elements to hide when checkbox is checked. The default is None.
 
         Returns
         -------
         None.
 
         """
-        if checkBox.isChecked():
-            for label in showLabelElements:
-                label.show()
-            for label in showNumElements:
-                label.show()
-            for label in showTextElements:
-                label.show()
-            for label in hideLabelElements:
-                label.hide()
-            for label in hideNumElements:
-                label.hide()
-                label.setValue(0)
+        showNumElements = showNumElements or []
+        showTextElements = showTextElements or []
+        hideLabelElements = hideLabelElements or []
+        hideNumElements = hideNumElements or []
 
-        else:
-            for label in showLabelElements:
-                label.hide()
-            for label in showNumElements:
-                label.hide()
-                label.setValue(0)
-            for label in showTextElements:
-                label.hide()
-                label.clear()
-            for label in hideLabelElements:
-                label.show()
-            for label in hideNumElements:
-                label.show()
+        checked = checkBox.isChecked()
+
+        def modifyVisibility(elements, show, resetFunc=None):
+            for widget in elements:
+                if show:
+                    widget.show()
+                else:
+                    widget.hide()
+                    if resetFunc:
+                        resetFunc(widget)
+
+        modifyVisibility(showLabelElements, checked)
+        modifyVisibility(showNumElements, checked, resetFunc=lambda w: w.setValue(0))
+        modifyVisibility(showTextElements, checked, resetFunc=lambda w: w.clear())
+        modifyVisibility(hideLabelElements, not checked)
+        modifyVisibility(hideNumElements, not checked, resetFunc=lambda w: w.setValue(0))
 
     def openFileDialog(self, filename, filenameEdit):
         """
@@ -720,11 +715,43 @@ class AdvancedWindow(QDialog):
             Error messages.
 
         """
-        errs = 0
-        errMsgs = []
+        totalErrs = 0
+        allErrMsgs = []
         maxT = self.parentWindow.getMaxT()
         numPat = self.parentWindow.getNumPat()
 
+        validationFuncs = [self.validateAesParams(maxT), self.validateRainfallFile(maxT),
+                           self.validateCoordsFile(numPat), self.validateRelTimesFile(maxT)]
+        for func in validationFuncs:
+            errs, errMsgs = func
+            totalErrs += errs
+            allErrMsgs += errMsgs  # += notation extends list instead of nesting lists
+
+        isValid = True
+        if totalErrs != 0:
+            isValid = False
+        return (isValid, allErrMsgs)
+
+    def validateAesParams(self, maxT):
+        """
+        Checks the validity of aestivation parameters if the aestivation checkbox is checked.
+        Checks for interval errors and bound errors.
+
+        Parameters
+        ----------
+        maxT : int
+            Simulation time parameter.
+
+        Returns
+        -------
+        errs : int
+            Number of errors found.
+        errMsgs : list:string
+            Error messages.
+
+        """
+        errs = 0
+        errMsgs = []
         if self.aesCheckbox.isChecked():
             if self.tHide2SB.value() < self.tHide1SB.value():
                 errs += 1
@@ -732,6 +759,38 @@ class AdvancedWindow(QDialog):
             if self.tWake2SB.value() < self.tWake1SB.value():
                 errs += 1
                 errMsgs.append("The end waking date must be equal to or larger than the start waking date.")
+
+        # give warnings but still allow the values - no errors thrown
+        if self.aesCheckbox.isChecked():
+            if (
+                (self.tHide1SB.value() > maxT) or (self.tHide2SB.value() > maxT) or
+                (self.tWake1SB.value() > maxT) or (self.tWake2SB.value() > maxT)
+               ):
+                errMsgs.append("The aestivation interval times are larger than max_t.\n" +
+                               "The simulation will only run partly through the aestivation period.")
+
+        return (errs, errMsgs)
+
+    def validateRainfallFile(self, maxT):
+        """
+        Checks the validity of the rainfall file if the checkbox has been checked.
+        Checks for file value errors including bound errors.
+
+        Parameters
+        ----------
+        maxT : int
+            Simulation time parameter.
+
+        Returns
+        -------
+        errs : int
+            Number of errors found.
+        errMsgs : list:string
+            Error messages.
+
+        """
+        errs = 0
+        errMsgs = []
 
         # read files and check values
         if self.rainfallFileCheckbox.isChecked():
@@ -755,6 +814,28 @@ class AdvancedWindow(QDialog):
                     errs += 1
                     errMsgs.append("An error occured with the rainfall file: {}".format(e))
 
+        return (errs, errMsgs)
+
+    def validateCoordsFile(self, numPat):
+        """
+        Checks the validity of the patch coordinates file if the checkbox has been checked.
+        Checks for file value errors including bound errors.
+
+        Parameters
+        ----------
+        numPat : int
+            Number of patches parameter.
+
+        Returns
+        -------
+        errs : int
+            Number of errors found.
+        errMsgs : list:string
+            Error messages.
+
+        """
+        errs = 0
+        errMsgs = []
         if self.coordsFileCheckbox.isChecked():
             if self.coordsFilenameEdit.text() == "":
                 errs += 1
@@ -785,6 +866,28 @@ class AdvancedWindow(QDialog):
                                 errs += 1
                                 errMsgs.append("Patch coordinate {} has an invalid release site choice.".format(i+1))
 
+        return (errs, errMsgs)
+
+    def validateRelTimesFile(self, maxT):
+        """
+        Checks the validity of the release times file if the checkbox has been checked.
+        Checks for file value errors including bound errors.
+
+        Parameters
+        ----------
+        maxT : int
+            Simulation time parameter.
+
+        Returns
+        -------
+        errs : int
+            Number of errors found.
+        errMsgs : list:string
+            Error messages.
+
+        """
+        errs = 0
+        errMsgs = []
         if self.relTimesFileCheckbox.isChecked():
             if self.relTimesFilenameEdit.text() == "":
                 errs += 1
@@ -801,19 +904,10 @@ class AdvancedWindow(QDialog):
                                 errs += 1
                                 errMsgs.append("Release time t{} is out of bounds 0 ≤ t ≤ max_t.".format(i+1))
                         else:
+                            errs += 1
                             errMsgs.append("Release time t{} is not an integer.".format(i+1))
 
-        # give warnings but still allow the values - no errors thrown
-        if self.aesCheckbox.isChecked():
-            if ((self.tHide1SB.value() > maxT) or (self.tHide2SB.value() > maxT) or
-                (self.tWake1SB.value() > maxT) or (self.tWake2SB.value() > maxT)):
-                errMsgs.append("The aestivation interval times are larger than max_t.\n" +
-                               "The simulation will only run partly through the aestivation period.")
-
-        isValid = True
-        if errs != 0:
-            isValid = False
-        return (isValid, errMsgs)
+        return (errs, errMsgs)
 
     def enableApply(self):
         """ Enables the apply button. """
