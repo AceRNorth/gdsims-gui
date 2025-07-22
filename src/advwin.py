@@ -303,6 +303,8 @@ class AdvancedWindow(QDialog):
                                                                                   self.tHide2SB,
                                                                                   self.tWake1SB,
                                                                                   self.tWake2SB]))
+        # Change the values of the aestivation times parameters separately as special case
+        self.aesCheckbox.stateChanged.connect(lambda: self.aesTimesCheckboxState(self.aesCheckbox))
         self.aesCheckbox.stateChanged.connect(self.enableApply)
         self.psiLabel = QLabel("aestivation rate")
         self.psiLabel.setToolTip("Aestivation rate.")
@@ -681,6 +683,46 @@ class AdvancedWindow(QDialog):
         modifyVisibility(hideLabelElements, not checked)
         modifyVisibility(hideNumElements, not checked, resetFunc=lambda w: w.setValue(0))
 
+    def aesTimesCheckboxState(self, checkBox):
+        """
+        Sets the minimum and the value of the aestivation times numeric UI elements 
+        (spin boxes for tHide1, tHide2, tWake1, tWake2) depending on whether the aestivation check box
+        is checked.
+        When checked, sets minima of all to 1 to prevent psi != 0 and time = 0 errors in the model program,
+        and sets values to 1, 2, 3, 4, to respect interval checks. 
+        When unchecked, sets minima and all values to 0.
+
+        Parameters
+        ----------
+        checkBox : QCheckBox
+
+        Returns
+        -------
+        None.
+
+        """
+
+        checked = checkBox.isChecked()
+
+        def setMin(widget, value):
+            widget.setMinimum(value)
+        
+        def setValue(widget, value):
+            widget.setValue(value)
+
+        times = [self.tHide1SB, self.tHide2SB, self.tWake1SB, self.tWake2SB]    
+        if checked:
+            for widget in times:
+                setMin(widget, 1)
+            self.tHide1SB.setValue(1)
+            self.tHide2SB.setValue(2)
+            self.tWake1SB.setValue(3)
+            self.tWake2SB.setValue(4)
+        else:
+            for widget in times:
+                setMin(widget, 0)
+                setValue(widget, 0)   
+
     def openFileDialog(self, filename, filenameEdit):
         """
         Opens a file dialog box to select a file, saves the filename and updates the text edit box with the filename.
@@ -753,12 +795,12 @@ class AdvancedWindow(QDialog):
         errs = 0
         errMsgs = []
         if self.aesCheckbox.isChecked():
-            if self.tHide2SB.value() < self.tHide1SB.value():
+            if self.tHide2SB.value() <= self.tHide1SB.value():
                 errs += 1
-                errMsgs.append("The end hiding date must be equal to or larger than the start hiding date.")
-            if self.tWake2SB.value() < self.tWake1SB.value():
+                errMsgs.append("The end hiding date must be larger than the start hiding date.")
+            if self.tWake2SB.value() <= self.tWake1SB.value():
                 errs += 1
-                errMsgs.append("The end waking date must be equal to or larger than the start waking date.")
+                errMsgs.append("The end waking date must be larger than the start waking date.")
 
         # give warnings but still allow the values - no errors thrown
         if self.aesCheckbox.isChecked():
