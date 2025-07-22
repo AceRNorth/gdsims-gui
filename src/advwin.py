@@ -685,11 +685,11 @@ class AdvancedWindow(QDialog):
 
     def aesTimesCheckboxState(self, checkBox):
         """
-        Sets the minimum and the value of the aestivation times numeric UI elements 
+        Sets the minimum and the value of the aestivation times numeric UI elements
         (spin boxes for tHide1, tHide2, tWake1, tWake2) depending on whether the aestivation check box
         is checked.
         When checked, sets minima of all to 1 to prevent psi != 0 and time = 0 errors in the model program,
-        and sets values to 1, 2, 3, 4, to respect interval checks. 
+        and sets values to 1, 2, 3, 4, to respect interval checks.
         When unchecked, sets minima and all values to 0.
 
         Parameters
@@ -706,11 +706,11 @@ class AdvancedWindow(QDialog):
 
         def setMin(widget, value):
             widget.setMinimum(value)
-        
+
         def setValue(widget, value):
             widget.setValue(value)
 
-        times = [self.tHide1SB, self.tHide2SB, self.tWake1SB, self.tWake2SB]    
+        times = [self.tHide1SB, self.tHide2SB, self.tWake1SB, self.tWake2SB]
         if checked:
             for widget in times:
                 setMin(widget, 1)
@@ -721,7 +721,7 @@ class AdvancedWindow(QDialog):
         else:
             for widget in times:
                 setMin(widget, 0)
-                setValue(widget, 0)   
+                setValue(widget, 0)
 
     def openFileDialog(self, filename, filenameEdit):
         """
