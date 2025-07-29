@@ -34,10 +34,10 @@
 
 # Before running this script, run "brew install create-dmg"
 
-mkdir -p dist_mac/dmg
-rm -r dist_mac/dmg/*
-cp -r "dist_mac/GDSiMS.app" dist_mac/dmg
-test -f "dist_mac/GDSiMS.dmg" && rm "dist_mac/GDSiMS.dmg"
+mkdir -p ./dist_mac/dmg
+rm -r ./dist_mac/dmg/*
+cp -r "./dist_mac/GDSiMS.app" ./dist_mac/dmg
+test -f "./dist_mac/GDSiMS.dmg" && rm "./dist_mac/GDSiMS.dmg"
 create-dmg \
 	--volname "GDSiMS" \
 	--window-pos 200 120 \
@@ -46,6 +46,6 @@ create-dmg \
 	--icon "GDSiMS.app" 175 120 \
 	--hide-extension "GDSiMS.app" \
 	--app-drop-link 425 120 \
-	"dist_mac/GDSiMS.dmg" \
-	"dist_mac/dmg/"
+	"./dist_mac/GDSiMS.dmg" \
+	"./dist_mac/dmg/"
 
