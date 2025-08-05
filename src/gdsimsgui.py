@@ -6,7 +6,6 @@ Created on Thu Oct 24 11:46:12 2024
 """
 
 import sys
-import platform
 from pathlib import Path
 from PyQt5.QtWidgets import QApplication, QMainWindow, QStyle, QAction, QMessageBox
 from PyQt5.QtGui import QIcon
@@ -22,11 +21,7 @@ appname = Path(basedir / "model" / "gdsimsapp_win.exe")
 if sys.platform == "win32":
     appname = Path(basedir / "model" / "gdsimsapp_win.exe")
 elif sys.platform == "darwin":
-    architecture = platform.machine()
-    if architecture == "arm64":
-        appname = Path(basedir / "model" / "gdsimsapp_mac_arm64")
-    elif architecture == "x86_64":
-        appname = Path(basedir / "model" / "gdsimsapp_mac_x86_64")
+    appname = Path(basedir / "model" / "gdsimsapp_mac")
 
 
 class ErrorCatcher:
@@ -143,7 +138,7 @@ class MainWindow(QMainWindow):
 
     def openDocs(self):
         """ Opens the documentation site link. """
-        webbrowser.open("https://acernorth.github.io/GeneralMetapop/")
+        webbrowser.open("https://acernorth.github.io/gdsims/")
 
     def getMaxT(self):
         """ Returns the max_t parameter of the current simulation. """
