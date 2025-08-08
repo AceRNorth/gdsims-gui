@@ -761,9 +761,10 @@ class AdvancedWindow(QDialog):
         allErrMsgs = []
         maxT = self.parentWindow.getMaxT()
         numPat = self.parentWindow.getNumPat()
+        numDriverSites = self.parentWindow.getNumDriverSites()
 
         validationFuncs = [self.validateAesParams(maxT), self.validateRainfallFile(maxT),
-                           self.validateCoordsFile(numPat), self.validateRelTimesFile(maxT)]
+                           self.validateCoordsFile(numPat, numDriverSites), self.validateRelTimesFile(maxT)]
         for func in validationFuncs:
             errs, errMsgs = func
             totalErrs += errs
@@ -858,7 +859,7 @@ class AdvancedWindow(QDialog):
 
         return (errs, errMsgs)
 
-    def validateCoordsFile(self, numPat):
+    def validateCoordsFile(self, numPat, numDriverSites):
         """
         Checks the validity of the patch coordinates file if the checkbox has been checked.
         Checks for file value errors including bound errors.
@@ -867,6 +868,8 @@ class AdvancedWindow(QDialog):
         ----------
         numPat : int
             Number of patches parameter.
+        numDriverSites : int
+            Number of release sites parameter.
 
         Returns
         -------
@@ -891,6 +894,7 @@ class AdvancedWindow(QDialog):
                         errMsgs.append("The number of patch coordinates in the file does not match " +
                                        "the parameter for number of patches.")
                     else:
+                        driverSiteCount = 0
                         for i in range(0, len(lines)):
                             line = lines[i].strip()  # strip surrounding whitespace
                             x, y, isRelSite = line.split()  # split into column values
@@ -907,6 +911,12 @@ class AdvancedWindow(QDialog):
                             if re.match(r"^y|n$", isRelSite) is None:
                                 errs += 1
                                 errMsgs.append("Patch coordinate {} has an invalid release site choice.".format(i+1))
+                            if isRelSite == "y":
+                                driverSiteCount += 1
+                        if driverSiteCount != numDriverSites:
+                            errs += 1
+                            errMsgs.append("The number of release sites in the file does not match " +
+                                           "the parameter for number of release sites.")
 
         return (errs, errMsgs)
 

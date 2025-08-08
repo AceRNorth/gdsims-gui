@@ -147,6 +147,10 @@ class MainWindow(QMainWindow):
     def getNumPat(self):
         """ Returns the num_pat parameter of the current simulation. """
         return self.centralWidget.paramSpace.numPatSB.value()
+    
+    def getNumDriverSites(self):
+        """ Returns the num_driver_sites parameter of the current simulation. """
+        return self.centralWidget.paramSpace.numDriverSitesSB.value()
 
 
 if __name__ == "__main__":
