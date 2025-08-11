@@ -13,7 +13,7 @@ from PyQt5.QtCore import Qt
 from pathlib import Path
 import numpy as np
 import re
-
+import gdsimsgui
 
 class AdvParams():
     """UI component values for the advanced parameters window. """
@@ -42,6 +42,7 @@ class AdvParams():
     resp = 0
     boundaryType = "Toroid"
     patchCoordsFile = False
+    patchCoordsType = ""
     patchCoordsFilename = ""
     gamma = 0.025
     relTimesFile = False
@@ -73,6 +74,7 @@ class AdvancedWindow(QDialog):
         self.rainfallFile = None
         self.coordsFile = None
         self.relTimesFile = None
+        self.dataDirPath = gdsimsgui.datadir
 
         self.initUI()
 
@@ -131,6 +133,8 @@ class AdvancedWindow(QDialog):
         self.rainfallFilenameEdit.setText(self.lastVals.rainfallFilename)
         self.boundaryTypeCB.setCurrentText(self.lastVals.boundaryType)
         self.coordsFileCheckbox.setChecked(self.lastVals.patchCoordsFile)
+        if self.lastVals.patchCoordsFile is True:
+            self.coordsFileTypeCB.setCurrentText(self.lastVals.patchCoordsType)
         self.coordsFilenameEdit.setText(self.lastVals.patchCoordsFilename)
         self.gammaSB.setValue(self.lastVals.gamma)
         self.relTimesFileCheckbox.setChecked(self.lastVals.relTimesFile)
@@ -167,6 +171,8 @@ class AdvancedWindow(QDialog):
         self.lastVals.resp = self.respSB.value()
         self.lastVals.boundaryType = self.boundaryTypeCB.currentText()
         self.lastVals.patchCoordsFile = self.coordsFileCheckbox.isChecked()
+        self.lastVals.patchCoordsType = (self.coordsFileTypeCB.currentText()
+                                         if self.coordsFileCheckbox.isChecked() else "")
         self.lastVals.patchCoordsFilename = self.coordsFilenameEdit.text()
         self.lastVals.gamma = self.gammaSB.value()
         self.lastVals.relTimesFile = self.relTimesFileCheckbox.isChecked()
@@ -453,19 +459,30 @@ class AdvancedWindow(QDialog):
         self.boundaryTypeCB.currentTextChanged.connect(self.enableApply)
         self.coordsFileLabel = QLabel("patch coordinates file")
         self.coordsFileCheckbox = QCheckBox()
-        self.coordsFileCheckbox.stateChanged.connect(lambda: self.checkboxState(self.coordsFileCheckbox,
-                                                                                showLabelElements=[coordsFileDialogBtn],
-                                                                                showTextElements=[self.coordsFilenameEdit]))
+        self.coordsFileCheckbox.stateChanged.connect(self.coordsFileCheckboxState)
         self.coordsFileCheckbox.stateChanged.connect(self.enableApply)
         self.coordsFileLabel.hide()
         self.coordsFileCheckbox.hide()
+
+        self.coordsFileTypeCB = QComboBox()
+        self.coordsFileTypeCB.addItems(["Square grid 25 patches",
+                                        "Square grid 49 patches",
+                                        "Square grid 121 patches",
+                                        "Square grid 225 patches",
+                                        "Hexagonal grid 55 patches",
+                                        "Hexagonal grid 97 patches",
+                                        "Hexagonal grid 199 patches",
+                                        "Custom"])
+        self.coordsFileTypeCB.currentTextChanged.connect(self.coordsFileTypeState)
+        self.coordsFileTypeCB.currentTextChanged.connect(self.enableApply)
+        self.coordsFileTypeCB.hide()
         self.coordsFilenameEdit = QLineEdit("")
         self.coordsFilenameEdit.setReadOnly(True)
         self.coordsFilenameEdit.textChanged.connect(self.enableApply)
-        coordsFileDialogBtn = QPushButton("Select")
-        coordsFileDialogBtn.clicked.connect(lambda: self.openFileDialog(self.coordsFile, self.coordsFilenameEdit))
+        self.coordsFileDialogBtn = QPushButton("Select")
+        self.coordsFileDialogBtn.clicked.connect(lambda: self.openFileDialog(self.coordsFile, self.coordsFilenameEdit))
         self.coordsFilenameEdit.hide()
-        coordsFileDialogBtn.hide()
+        self.coordsFileDialogBtn.hide()
 
         line5 = QFrame()
         line5.setFrameShape(QFrame.HLine)
@@ -576,21 +593,22 @@ class AdvancedWindow(QDialog):
         self.layout.addWidget(self.boundaryTypeCB, 27, 1, 1, 1)
         self.layout.addWidget(self.coordsFileLabel, 28, 0)
         self.layout.addWidget(self.coordsFileCheckbox, 28, 1)
-        self.layout.addWidget(self.coordsFilenameEdit, 29, 0, 1, 3)
-        self.layout.addWidget(coordsFileDialogBtn, 29, 3)
-        self.layout.addWidget(line5, 30, 0, 1, 4)
-        self.layout.addWidget(inherTitle, 31, 0)
-        self.layout.addWidget(self.gammaLabel, 32, 0)
-        self.layout.addWidget(self.gammaSB, 32, 1)
-        self.layout.addWidget(line6, 33, 0, 1, 4)
-        self.layout.addWidget(releaseTitle, 34, 0)
-        self.layout.addWidget(self.relTimesFileLabel, 35, 0)
-        self.layout.addWidget(self.relTimesFileCheckbox, 35, 1)
-        self.layout.addWidget(self.relTimesFilenameEdit, 36, 0, 1, 3)
-        self.layout.addWidget(relTimesFileDialogBtn, 36, 3)
-        self.layout.addWidget(line7, 37, 0, 1, 4)
-        self.layout.addWidget(self.okBtn, 38, 2, 1, 1)
-        self.layout.addWidget(self.applyBtn, 38, 3, 1, 1)
+        self.layout.addWidget(self.coordsFileTypeCB, 29, 1, 1, 1)
+        self.layout.addWidget(self.coordsFilenameEdit, 30, 0, 1, 3)
+        self.layout.addWidget(self.coordsFileDialogBtn, 30, 3)
+        self.layout.addWidget(line5, 31, 0, 1, 4)
+        self.layout.addWidget(inherTitle, 32, 0)
+        self.layout.addWidget(self.gammaLabel, 33, 0)
+        self.layout.addWidget(self.gammaSB, 33, 1)
+        self.layout.addWidget(line6, 34, 0, 1, 4)
+        self.layout.addWidget(releaseTitle, 35, 0)
+        self.layout.addWidget(self.relTimesFileLabel, 36, 0)
+        self.layout.addWidget(self.relTimesFileCheckbox, 36, 1)
+        self.layout.addWidget(self.relTimesFilenameEdit, 37, 0, 1, 3)
+        self.layout.addWidget(relTimesFileDialogBtn, 38, 3)
+        self.layout.addWidget(line7, 39, 0, 1, 4)
+        self.layout.addWidget(self.okBtn, 40, 2, 1, 1)
+        self.layout.addWidget(self.applyBtn, 40, 3, 1, 1)
 
         self.horizontalGroupBox.setLayout(self.layout)
 
@@ -635,6 +653,49 @@ class AdvancedWindow(QDialog):
         if self.boundaryTypeCB.currentText() == "Edge":
             self.coordsFileLabel.show()
             self.coordsFileCheckbox.show()
+            
+    def coordsFileTypeState(self):
+        """
+        Shows/hides extra UI components depending on the coordinate file type selected,
+        and sets the corresponding coordinate filepaths.
+        """
+        if self.coordsFileTypeCB.currentText() == "Custom":
+            self.coordsFilenameEdit.clear()
+            self.coordsFilenameEdit.show()
+            self.coordsFileDialogBtn.show()
+        if self.coordsFileTypeCB.currentText() != "Custom":
+            self.coordsFilenameEdit.hide()
+            self.coordsFilenameEdit.clear()
+            self.coordsFileDialogBtn.hide()
+
+            if self.coordsFileTypeCB.currentText() == "Square grid 25 patches":
+                file = self.dataDirPath / "coords_square_25.txt"
+            elif self.coordsFileTypeCB.currentText() == "Square grid 49 patches":
+                file = self.dataDirPath / "coords_square_49.txt"
+            elif self.coordsFileTypeCB.currentText() == "Square grid 121 patches":
+                file = self.dataDirPath / "coords_square_121.txt"
+            elif self.coordsFileTypeCB.currentText() == "Square grid 225 patches":
+                file = self.dataDirPath / "coords_square_225.txt"
+            elif self.coordsFileTypeCB.currentText() == "Hexagonal grid 55 patches":
+                file = self.dataDirPath / "coords_hex_55.txt"
+            elif self.coordsFileTypeCB.currentText() == "Hexagonal grid 97 patches":
+                file = self.dataDirPath / "coords_hex_97.txt"
+            elif self.coordsFileTypeCB.currentText() == "Hexagonal grid 199 patches":
+                file = self.dataDirPath / "coords_hex_199.txt"
+            self.coordsFilenameEdit.setText(str(file.resolve()))
+
+    def coordsFileCheckboxState(self):
+        checked = self.coordsFileCheckbox.isChecked()
+        if checked:
+            self.coordsFileTypeCB.setCurrentText("Square grid 25 patches")
+            file = self.dataDirPath / "coords_square_25.txt"
+            self.coordsFilenameEdit.setText(str(file.resolve()))
+            self.coordsFileTypeCB.show()
+        else:
+            self.coordsFileTypeCB.hide()
+            self.coordsFilenameEdit.clear()
+            self.coordsFilenameEdit.hide()
+            self.coordsFileDialogBtn.hide()
 
     def checkboxState(self, checkBox, showLabelElements, showNumElements=None, showTextElements=None,
                       hideLabelElements=None, hideNumElements=None):
