@@ -14,6 +14,8 @@ from pathlib import Path
 import numpy as np
 import re
 import gdsimsgui
+import plotpreviewwin
+import plotpreviewcanvas
 
 class AdvParams():
     """UI component values for the advanced parameters window. """
@@ -75,6 +77,8 @@ class AdvancedWindow(QDialog):
         self.coordsFile = None
         self.relTimesFile = None
         self.dataDirPath = gdsimsgui.datadir
+        
+        self.plotPreviewWindows = []
 
         self.initUI()
 
@@ -476,6 +480,9 @@ class AdvancedWindow(QDialog):
         self.coordsFileTypeCB.currentTextChanged.connect(self.coordsFileTypeState)
         self.coordsFileTypeCB.currentTextChanged.connect(self.enableApply)
         self.coordsFileTypeCB.hide()
+        self.coordsFilePreviewBtn = QPushButton("Preview")
+        self.coordsFilePreviewBtn.clicked.connect(lambda: self.openPlotPreview(self.coordsFilenameEdit.text(), "Coordinates"))
+        self.coordsFilePreviewBtn.hide()
         self.coordsFilenameEdit = QLineEdit("")
         self.coordsFilenameEdit.setReadOnly(True)
         self.coordsFilenameEdit.textChanged.connect(self.enableApply)
@@ -594,6 +601,7 @@ class AdvancedWindow(QDialog):
         self.layout.addWidget(self.coordsFileLabel, 28, 0)
         self.layout.addWidget(self.coordsFileCheckbox, 28, 1)
         self.layout.addWidget(self.coordsFileTypeCB, 29, 1, 1, 1)
+        self.layout.addWidget(self.coordsFilePreviewBtn, 29, 2, 1, 1)
         self.layout.addWidget(self.coordsFilenameEdit, 30, 0, 1, 3)
         self.layout.addWidget(self.coordsFileDialogBtn, 30, 3)
         self.layout.addWidget(line5, 31, 0, 1, 4)
@@ -685,17 +693,43 @@ class AdvancedWindow(QDialog):
             self.coordsFilenameEdit.setText(str(file.resolve()))
 
     def coordsFileCheckboxState(self):
+        """
+        Shows or hides UI components depending on the state of the coordinates file checkbox.
+        """
         checked = self.coordsFileCheckbox.isChecked()
         if checked:
             self.coordsFileTypeCB.setCurrentText("Square grid 25 patches")
             file = self.dataDirPath / "coords_square_25.txt"
             self.coordsFilenameEdit.setText(str(file.resolve()))
             self.coordsFileTypeCB.show()
+            self.coordsFilePreviewBtn.show()
         else:
             self.coordsFileTypeCB.hide()
             self.coordsFilenameEdit.clear()
             self.coordsFilenameEdit.hide()
             self.coordsFileDialogBtn.hide()
+            self.coordsFilePreviewBtn.hide()
+
+    def openPlotPreview(self, filepath, plotType):
+        """
+        Opens a window with the plot of the file to be previewed.
+
+        Parameters
+        ----------
+        filepath : string
+            Filepath string of the file to be plotted.
+        plotType : string
+            Type of preview plot, as defined by the PlotPreviewWindow class.
+
+        Returns
+        -------
+        None.
+
+        """
+
+        plotPreviewWin = plotpreviewwin.PlotPreviewWindow(plotType, filepath)
+        self.plotPreviewWindows.append(plotPreviewWin)
+        self.plotPreviewWindows[-1].show() # only newly display the last element added
 
     def checkboxState(self, checkBox, showLabelElements, showNumElements=None, showTextElements=None,
                       hideLabelElements=None, hideNumElements=None):
