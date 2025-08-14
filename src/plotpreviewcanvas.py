@@ -91,7 +91,6 @@ class RainfallInputPlotCanvas(PlotCanvas):
         x = np.arange(1, len(data)+1)
         y = data[:, 0]
         self.axes.plot(x, y, color="cornflowerblue")
-        self.axes.set_ylim(np.amin(y), np.amax(y))
         self.axes.set_xlabel("Day")
         self.axes.set_ylabel("Rainfall")
         self.draw()
