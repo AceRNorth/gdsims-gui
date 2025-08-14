@@ -21,7 +21,7 @@ class PlotPreviewWindow(QDialog):
         canvas : PlotCanvas
             The associated plot canvas.
         plotType : string
-            Description of plot. Options include "Coordinates".
+            Description of plot. Options include "Coordinates" and "Rainfall".
         """
         super().__init__()
         self.title = plotType + " file plot preview"
@@ -72,4 +72,6 @@ class PlotPreviewWindow(QDialog):
         canvas = None
         if plotType == "Coordinates":
             canvas = plotpreviewcanvas.CoordsInputPlotCanvas()
+        elif plotType == "Rainfall":
+            canvas = plotpreviewcanvas.RainfallInputPlotCanvas()
         return canvas

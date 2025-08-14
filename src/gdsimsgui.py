@@ -129,6 +129,7 @@ class MainWindow(QMainWindow):
 
         if reply == QMessageBox.Yes:  # if user says yes, the widget will close
             if self.advWindow is not None:
+                self.advWindow.closePopUps()
                 self.advWindow.close()
                 self.advWindow = None
             if simRunning:

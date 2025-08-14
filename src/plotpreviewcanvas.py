@@ -54,3 +54,44 @@ class CoordsInputPlotCanvas(PlotCanvas):
         self.axes.set_ylabel("y")
         self.axes.set_aspect('equal') # set equal aspect ratio for both axes
         self.draw()
+
+
+class RainfallInputPlotCanvas(PlotCanvas):
+    """ Creates a plot figure of rainfall data. """
+    def __init__(self, parent=None, width=5, height=4, dpi=100):
+        """
+        Parameters
+        ----------
+        parent : TYPE, optional
+            DESCRIPTION. The default is None.
+        width : float, optional
+            Figure width (inches). The default is 5.
+        height : float, optional
+            Figure height (inches). The default is 4.
+        dpi : float, optional
+            Figure dpi (resolution in dots-per-inch). The default is 100.
+        """
+        super().__init__(parent, width, height, dpi)
+
+    def plot(self, file, *args):
+        """
+        Plots the data from the data file.
+
+        Parameters
+        ----------
+        file : os.path for coords data file
+        *args :
+
+        Returns
+        -------
+        None.
+        """
+        self.axes.clear()
+        data = np.loadtxt(file, ndmin=2)
+        x = np.arange(1, len(data)+1)
+        y = data[:, 0]
+        self.axes.plot(x, y, color="cornflowerblue")
+        self.axes.set_ylim(np.amin(y), np.amax(y))
+        self.axes.set_xlabel("Day")
+        self.axes.set_ylabel("Rainfall")
+        self.draw()

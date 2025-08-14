@@ -101,6 +101,11 @@ class AdvancedWindow(QDialog):
         self.saveValues()  # save starting values in case need to reset when close window without saving
         self.okBtn.setDefault(True)
         self.okBtn.setAutoDefault(True)
+        
+    def closePopUps(self):
+        """ Close all its pop up windows. """
+        for win in self.plotPreviewWindows:
+            win.close()
 
     def closeEvent(self, event):
         """
@@ -427,7 +432,8 @@ class AdvancedWindow(QDialog):
         self.rainfallFileCheckbox.stateChanged.connect(lambda:
                                                        self.checkboxState(self.rainfallFileCheckbox,
                                                                           showLabelElements=[rainfallFileDialogBtn,
-                                                                                             self.respLabel],
+                                                                                             self.respLabel,
+                                                                                             self.rainfallFilePreviewBtn],
                                                                           showNumElements=[self.respSB],
                                                                           showTextElements=[self.rainfallFilenameEdit],
                                                                           hideLabelElements=[self.ampLabel],
@@ -447,10 +453,14 @@ class AdvancedWindow(QDialog):
         self.respSB.setValue(0)
         self.respSB.resize(self.respSB.sizeHint())
         self.respSB.valueChanged.connect(self.enableApply)
+        self.rainfallFilePreviewBtn = QPushButton("Preview")
+        self.rainfallFilePreviewBtn.clicked.connect(lambda: self.openPlotPreview(self.rainfallFilenameEdit.text(),
+                                                                                 "Rainfall"))
         self.rainfallFilenameEdit.hide()
         rainfallFileDialogBtn.hide()
         self.respLabel.hide()
         self.respSB.hide()
+        self.rainfallFilePreviewBtn.hide()
 
         line4 = QFrame()
         line4.setFrameShape(QFrame.HLine)
@@ -595,6 +605,7 @@ class AdvancedWindow(QDialog):
         self.layout.addWidget(rainfallFileDialogBtn, 23, 3)
         self.layout.addWidget(self.respLabel, 24, 0)
         self.layout.addWidget(self.respSB, 24, 1)
+        self.layout.addWidget(self.rainfallFilePreviewBtn, 24, 2, 1, 1)
         self.layout.addWidget(line4, 25, 0, 1, 4)
         self.layout.addWidget(modelAreaTitle, 26, 0)
         self.layout.addWidget(self.boundaryTypeLabel, 27, 0)
@@ -727,7 +738,7 @@ class AdvancedWindow(QDialog):
         None.
 
         """
-        if os.path.exists(filepath):
+        if os.path.exists(filepath): # to prevent preview button bug when custom filepath is empty
             plotPreviewWin = plotpreviewwin.PlotPreviewWindow(plotType, filepath)
             self.plotPreviewWindows.append(plotPreviewWin)
             self.plotPreviewWindows[-1].show() # only newly display the last element added
