@@ -455,7 +455,8 @@ class AdvancedWindow(QDialog):
         self.respSB.valueChanged.connect(self.enableApply)
         self.rainfallFilePreviewBtn = QPushButton("Preview")
         self.rainfallFilePreviewBtn.clicked.connect(lambda: self.openPlotPreview(self.rainfallFilenameEdit.text(),
-                                                                                 "Rainfall"))
+                                                                                 "Rainfall",
+                                                                                 self.validateRainfallFile(self.parentWindow.getMaxT())))
         self.rainfallFilenameEdit.hide()
         rainfallFileDialogBtn.hide()
         self.respLabel.hide()
@@ -492,7 +493,11 @@ class AdvancedWindow(QDialog):
         self.coordsFileTypeCB.currentTextChanged.connect(self.enableApply)
         self.coordsFileTypeCB.hide()
         self.coordsFilePreviewBtn = QPushButton("Preview")
-        self.coordsFilePreviewBtn.clicked.connect(lambda: self.openPlotPreview(self.coordsFilenameEdit.text(), "Coordinates"))
+        self.coordsFilePreviewBtn.clicked.connect(lambda:
+                                                  self.openPlotPreview(self.coordsFilenameEdit.text(),
+                                                                       "Coordinates",
+                                                                       self.validateCoordsFile(self.parentWindow.getNumPat(),
+                                                                                               self.parentWindow.getNumDriverSites())))
         self.coordsFilePreviewBtn.hide()
         self.coordsFilenameEdit = QLineEdit("")
         self.coordsFilenameEdit.setReadOnly(True)
@@ -722,9 +727,9 @@ class AdvancedWindow(QDialog):
             self.coordsFileDialogBtn.hide()
             self.coordsFilePreviewBtn.hide()
 
-    def openPlotPreview(self, filepath, plotType):
+    def openPlotPreview(self, filepath, plotType, validationFunc):
         """
-        Opens a window with the plot of the file to be previewed.
+        Opens a window with the plot of the file to be previewed if the file is valid.
 
         Parameters
         ----------
@@ -732,16 +737,23 @@ class AdvancedWindow(QDialog):
             Filepath string of the file to be plotted.
         plotType : string
             Type of preview plot, as defined by the PlotPreviewWindow class.
+        validationFunc : object
+            Function which validates the datafile.
 
         Returns
         -------
         None.
 
         """
+        errs, errMsgs = validationFunc
+
         if os.path.exists(filepath): # to prevent preview button bug when custom filepath is empty
-            plotPreviewWin = plotpreviewwin.PlotPreviewWindow(plotType, filepath)
-            self.plotPreviewWindows.append(plotPreviewWin)
-            self.plotPreviewWindows[-1].show() # only newly display the last element added
+            if not errs:
+                plotPreviewWin = plotpreviewwin.PlotPreviewWindow(plotType, filepath)
+                self.plotPreviewWindows.append(plotPreviewWin)
+                self.plotPreviewWindows[-1].show() # only newly display the last element added
+            else:
+                self.displayErrorMessages(errMsgs, "Warning")
 
     def checkboxState(self, checkBox, showLabelElements, showNumElements=None, showTextElements=None,
                       hideLabelElements=None, hideNumElements=None):
@@ -1072,6 +1084,25 @@ class AdvancedWindow(QDialog):
         """ Enables the apply button. """
         if self.applyBtn.isEnabled() is False:
             self.applyBtn.setEnabled(True)
+    
+    def displayErrorMessages(self, errMsgs, msgType):
+        """
+        Displays all error messages in an Info message box. 
+        
+        Parameters
+        ----------
+        errMsgs : list:string
+            List of error messages.
+        msgType: string
+            Message box type. Options include "Info" and "Warning".
+
+        """
+        if errMsgs:
+            errMsgs = "\n".join(errMsgs)
+            if msgType == "Info":
+                QMessageBox.information(self, "Info", errMsgs)
+            elif msgType == "Warning":
+                QMessageBox.warning(self, "Invalid parameter(s)", errMsgs)
 
     def applyChanges(self, btn):
         """
@@ -1091,13 +1122,10 @@ class AdvancedWindow(QDialog):
         # only apply changes if pass bound and other checks
         isValid, errMsgs = self.validParams()
         if isValid:
-            if errMsgs:
-                errMsgs = "\n".join(errMsgs)
-                QMessageBox.information(self, "Info", errMsgs)
+            self.displayErrorMessages(errMsgs, "Info")
             self.saveValues()
             self.applyBtn.setEnabled(False)
             if btn == "ok":  # close dialog too if using ok button
                 self.accept()
         else:
-            errMsgs = "\n".join(errMsgs)
-            QMessageBox.warning(self, "Invalid parameter(s)", errMsgs)
+            self.displayErrorMessages(errMsgs, "Warning")
