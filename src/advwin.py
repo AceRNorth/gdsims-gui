@@ -11,6 +11,7 @@ from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtGui import QIcon, QPalette, QColor
 from PyQt5.QtCore import Qt
 from pathlib import Path
+import os
 import numpy as np
 import re
 import gdsimsgui
@@ -726,10 +727,10 @@ class AdvancedWindow(QDialog):
         None.
 
         """
-
-        plotPreviewWin = plotpreviewwin.PlotPreviewWindow(plotType, filepath)
-        self.plotPreviewWindows.append(plotPreviewWin)
-        self.plotPreviewWindows[-1].show() # only newly display the last element added
+        if os.path.exists(filepath):
+            plotPreviewWin = plotpreviewwin.PlotPreviewWindow(plotType, filepath)
+            self.plotPreviewWindows.append(plotPreviewWin)
+            self.plotPreviewWindows[-1].show() # only newly display the last element added
 
     def checkboxState(self, checkBox, showLabelElements, showNumElements=None, showTextElements=None,
                       hideLabelElements=None, hideNumElements=None):
