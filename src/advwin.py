@@ -630,7 +630,7 @@ class AdvancedWindow(QDialog):
         self.layout.addWidget(self.relTimesFileLabel, 36, 0)
         self.layout.addWidget(self.relTimesFileCheckbox, 36, 1)
         self.layout.addWidget(self.relTimesFilenameEdit, 37, 0, 1, 3)
-        self.layout.addWidget(relTimesFileDialogBtn, 38, 3)
+        self.layout.addWidget(relTimesFileDialogBtn, 37, 3)
         self.layout.addWidget(line7, 39, 0, 1, 4)
         self.layout.addWidget(self.okBtn, 40, 2, 1, 1)
         self.layout.addWidget(self.applyBtn, 40, 3, 1, 1)
