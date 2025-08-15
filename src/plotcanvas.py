@@ -306,6 +306,7 @@ class CoordsPlotCanvas(PlotCanvas):
             self.axes.set_ylim(np.amin(y), np.amax(y))
         self.axes.set_xlabel("x")
         self.axes.set_ylabel("y")
+        self.axes.set_aspect('equal') # set equal aspect ratio for both axes
         self.draw()
 
 
@@ -397,6 +398,7 @@ class LocalPlotCanvas(PlotCanvas):
             self.axes.set_ylim(y - y/2, y + y/2)
         else:
             self.axes.set_ylim(np.amin(y), np.amax(y))
+        self.axes.set_aspect('equal') # set equal aspect ratio for both axes
         self.axes.minorticks_on()  # need it for animation saving to work
         self.draw()
 
