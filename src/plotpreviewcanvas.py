@@ -6,6 +6,7 @@ Created on Tue Aug 12 12:02:53 2025
 """
 import numpy as np
 from plotcanvas import PlotCanvas
+import re
 
 class CoordsInputPlotCanvas(PlotCanvas):
     """ Creates a plot figure of coordinate points. """
@@ -39,9 +40,29 @@ class CoordsInputPlotCanvas(PlotCanvas):
         """
         self.axes.clear()
         data = np.loadtxt(file, ndmin=2, usecols=(0,1)) # don't use last column (release sites)
+
+        def findReleaseSites(f):
+            isRelSiteData = np.loadtxt(f, dtype='str', ndmin=2, usecols=(2))
+            relSitesIndices = []
+            notRelSitesIndices = []
+            for site in range(0, len(isRelSiteData)):
+                if isRelSiteData[site] == "y":
+                    relSitesIndices.append(site)
+                else:
+                    notRelSitesIndices.append(site)
+            return (relSitesIndices, notRelSitesIndices)
+                  
+        relSitesIndices, notRelSitesIndices = findReleaseSites(file)
         x = data[:, 0]
         y = data[:, 1]
-        self.axes.scatter(x, y, marker='.', color="peru")
+        xRel = data[relSitesIndices, 0]
+        yRel = data[relSitesIndices, 1]
+        xNot = data[notRelSitesIndices, 0]
+        yNot = data[notRelSitesIndices, 1]
+
+        self.axes.scatter(xRel, yRel, marker='.', color="royalblue", label="release sites")
+        self.axes.scatter(xNot, yNot, marker='.', color="peru", label=None) # label None so don't show in legend
+
         if len(x) == 1:
             self.axes.set_xlim(x - x/2, x + x/2)
         else:
@@ -53,6 +74,7 @@ class CoordsInputPlotCanvas(PlotCanvas):
         self.axes.set_xlabel("x")
         self.axes.set_ylabel("y")
         self.axes.set_aspect('equal') # set equal aspect ratio for both axes
+        self.axes.legend()
         self.draw()
 
 
