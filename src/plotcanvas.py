@@ -124,7 +124,7 @@ class PlotCanvas(FigureCanvas):
 
 
 class TotalsGenPlotCanvas(PlotCanvas):
-    """ Creates a plot figure of total males across the simulation area, classed by genotype. """
+    """ Creates a plot figure of total adult mated females across the simulation area, classed by genotype. """
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         """
         Parameters
@@ -157,16 +157,16 @@ class TotalsGenPlotCanvas(PlotCanvas):
         self.axes.clear()  # clears plot on the plot canvas before plotting the new curve(s)
         totals = np.loadtxt(file, skiprows=2, ndmin=2)
         times = totals[0:, 0]
-        total_males = totals[0:, 1:]
+        total_females = totals[0:, 1:]
 
-        labels = ["$M_{WW}$",
-                  "$M_{WD}$",
-                  "$M_{DD}$",
-                  "$M_{WR}$",
-                  "$M_{RR}$",
-                  "$M_{DR}$",
-                  "$M_{WW}$+$M_{WD}$+\n$M_{DD}$+$M_{WR}$+\n$M_{RR}$+$M_{DR}$",
-                  "$M_{WW}$+$M_{WD}$+\n$M_{WR}$"]
+        labels = ["$F_{WW}$",
+                  "$F_{WD}$",
+                  "$F_{DD}$",
+                  "$F_{WR}$",
+                  "$F_{RR}$",
+                  "$F_{DR}$",
+                  "$F_{WW}$+$F_{WD}$+\n$F_{DD}$+$F_{WR}$+\n$F_{RR}$+$F_{DR}$",
+                  "$F_{WW}$+$F_{WD}$+\n$F_{WR}$"]
         colours = ["mediumturquoise",
                    "darkcyan",
                    "royalblue",
@@ -179,11 +179,11 @@ class TotalsGenPlotCanvas(PlotCanvas):
         for line in lines:
             y = []
             if line == 6:
-                y = np.sum(total_males, axis=1).tolist()
+                y = np.sum(total_females, axis=1).tolist()
             if line == 7:
-                y = np.sum(total_males[:, (0, 1, 3)], axis=1).tolist()
+                y = np.sum(total_females[:, (0, 1, 3)], axis=1).tolist()
             if line >= 0 and line < 6:
-                y = total_males[:, line]
+                y = total_females[:, line]
             self.axes.plot(times, y, label=labels[line], color=colours[line])  # keep same colours for same type of line
 
         self.axes.set_xlabel("Day")
@@ -226,13 +226,13 @@ class TotalsAllelePlotCanvas(PlotCanvas):
         self.axes.clear()  # clears plot on the plot canvas before plotting the new curve(s)
         totals = np.loadtxt(file, skiprows=2, ndmin=2)
         times = totals[0:, 0]
-        total_males = totals[0:, 1:]
-        WW = total_males[:, 0]
-        WD = total_males[:, 1]
-        DD = total_males[:, 2]
-        WR = total_males[:, 3]
-        RR = total_males[:, 4]
-        DR = total_males[:, 5]
+        total_females = totals[0:, 1:]
+        WW = total_females[:, 0]
+        WD = total_females[:, 1]
+        DD = total_females[:, 2]
+        WR = total_females[:, 3]
+        RR = total_females[:, 4]
+        DR = total_females[:, 5]
 
         for line in lines:  # keep same colours for same type of line
             labels = ["wild",
@@ -310,7 +310,7 @@ class CoordsPlotCanvas(PlotCanvas):
 
 
 class LocalPlotCanvas(PlotCanvas):
-    """ Creates a plot and animation figure of local male population data. """
+    """ Creates a plot and animation figure of local adult mated female population data. """
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         """
         Parameters

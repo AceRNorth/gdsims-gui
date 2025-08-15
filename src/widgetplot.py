@@ -140,8 +140,10 @@ class WidgetPlotTotals(WidgetPlot):
 
 
 class WidgetPlotTotalsGen(WidgetPlotTotals):
-    """Creates a widget for the plotspace and plot interaction components of the total males (by genotype) plot."""
-
+    """
+    Creates a widget for the plotspace and plot interaction components of the
+    total adult mated females (by female genotype) plot.
+    """
     def __init__(self):
         self.canvas = plotcanvas.TotalsGenPlotCanvas()
         super().__init__(self.canvas)
@@ -161,35 +163,35 @@ class WidgetPlotTotalsGen(WidgetPlotTotals):
         self.transmitCheckbox.resize(self.transmitCheckbox.sizeHint())
         self.transmitCheckbox.setChecked(True)
 
-        self.mWWcheckbox = QCheckBox("WW")
-        self.mWWcheckbox.setToolTip("Wild homozygous males.")
-        self.mWWcheckbox.resize(self.mWWcheckbox.sizeHint())
-        self.mWWcheckbox.setChecked(True)
+        self.fWWcheckbox = QCheckBox("WW")
+        self.fWWcheckbox.setToolTip("Wild homozygous adult mated females.")
+        self.fWWcheckbox.resize(self.fWWcheckbox.sizeHint())
+        self.fWWcheckbox.setChecked(True)
 
-        self.mWDcheckbox = QCheckBox("WD")
-        self.mWDcheckbox.setToolTip("Drive heterozygous males.")
-        self.mWDcheckbox.resize(self.mWDcheckbox.sizeHint())
-        self.mWDcheckbox.setChecked(True)
+        self.fWDcheckbox = QCheckBox("WD")
+        self.fWDcheckbox.setToolTip("Drive heterozygous adult mated females.")
+        self.fWDcheckbox.resize(self.fWDcheckbox.sizeHint())
+        self.fWDcheckbox.setChecked(True)
 
-        self.mDDcheckbox = QCheckBox("DD")
-        self.mDDcheckbox.setToolTip("Drive homozygous males.")
-        self.mDDcheckbox.resize(self.mDDcheckbox.sizeHint())
-        self.mDDcheckbox.setChecked(True)
+        self.fDDcheckbox = QCheckBox("DD")
+        self.fDDcheckbox.setToolTip("Drive homozygous adult mated females.")
+        self.fDDcheckbox.resize(self.fDDcheckbox.sizeHint())
+        self.fDDcheckbox.setChecked(True)
 
-        self.mWRcheckbox = QCheckBox("WR")
-        self.mWRcheckbox.setToolTip("Wild/drive resistant heterozygous males.")
-        self.mWRcheckbox.resize(self.mWRcheckbox.sizeHint())
-        self.mWRcheckbox.setChecked(True)
+        self.fWRcheckbox = QCheckBox("WR")
+        self.fWRcheckbox.setToolTip("Wild/drive resistant heterozygous adult mated females.")
+        self.fWRcheckbox.resize(self.fWRcheckbox.sizeHint())
+        self.fWRcheckbox.setChecked(True)
 
-        self.mRRcheckbox = QCheckBox("RR")
-        self.mRRcheckbox.setToolTip("Drive resistant homozygous males.")
-        self.mRRcheckbox.resize(self.mRRcheckbox.sizeHint())
-        self.mRRcheckbox.setChecked(True)
+        self.fRRcheckbox = QCheckBox("RR")
+        self.fRRcheckbox.setToolTip("Drive resistant homozygous adult mated females.")
+        self.fRRcheckbox.resize(self.fRRcheckbox.sizeHint())
+        self.fRRcheckbox.setChecked(True)
 
-        self.mDRcheckbox = QCheckBox("DR")
-        self.mDRcheckbox.setToolTip("Drive/drive resistant heterozygous males.")
-        self.mDRcheckbox.resize(self.mDRcheckbox.sizeHint())
-        self.mDRcheckbox.setChecked(True)
+        self.fDRcheckbox = QCheckBox("DR")
+        self.fDRcheckbox.setToolTip("Drive/drive resistant heterozygous adult mated females.")
+        self.fDRcheckbox.resize(self.fDRcheckbox.sizeHint())
+        self.fDRcheckbox.setChecked(True)
 
     def createGridLayout(self):
         """ Places UI components on a grid layout. """
@@ -201,12 +203,12 @@ class WidgetPlotTotalsGen(WidgetPlotTotals):
         interactLayout.addWidget(self.runsCB)
         interactLayout.addWidget(self.allCheckbox)
         interactLayout.addWidget(self.transmitCheckbox)
-        interactLayout.addWidget(self.mWWcheckbox)
-        interactLayout.addWidget(self.mWDcheckbox)
-        interactLayout.addWidget(self.mDDcheckbox)
-        interactLayout.addWidget(self.mWRcheckbox)
-        interactLayout.addWidget(self.mRRcheckbox)
-        interactLayout.addWidget(self.mDRcheckbox)
+        interactLayout.addWidget(self.fWWcheckbox)
+        interactLayout.addWidget(self.fWDcheckbox)
+        interactLayout.addWidget(self.fDDcheckbox)
+        interactLayout.addWidget(self.fWRcheckbox)
+        interactLayout.addWidget(self.fRRcheckbox)
+        interactLayout.addWidget(self.fDRcheckbox)
         interactLayout.addWidget(self.plotBtn)
         interactLayout.addStretch()  # create a stretch of filler space between components
         interactBox.setLayout(interactLayout)
@@ -221,17 +223,17 @@ class WidgetPlotTotalsGen(WidgetPlotTotals):
         """Returns a list of indices to be plotted depending on the checkboxes that are checked."""
         lines = []
 
-        if self.mWWcheckbox.isChecked() is True:
+        if self.fWWcheckbox.isChecked() is True:
             lines.append(0)
-        if self.mWDcheckbox.isChecked() is True:
+        if self.fWDcheckbox.isChecked() is True:
             lines.append(1)
-        if self.mDDcheckbox.isChecked() is True:
+        if self.fDDcheckbox.isChecked() is True:
             lines.append(2)
-        if self.mWRcheckbox.isChecked() is True:
+        if self.fWRcheckbox.isChecked() is True:
             lines.append(3)
-        if self.mRRcheckbox.isChecked() is True:
+        if self.fRRcheckbox.isChecked() is True:
             lines.append(4)
-        if self.mDRcheckbox.isChecked() is True:
+        if self.fDRcheckbox.isChecked() is True:
             lines.append(5)
         if self.allCheckbox.isChecked() is True:
             lines.append(6)
@@ -241,8 +243,10 @@ class WidgetPlotTotalsGen(WidgetPlotTotals):
 
 
 class WidgetPlotTotalsAllele(WidgetPlotTotals):
-    """Creates a widget for the plotspace and plot interaction components of the total males (by allele frequency) plot."""
-
+    """
+    Creates a widget for the plotspace and plot interaction components of the
+    total adult mated females (by allele frequency) plot.
+    """
     def __init__(self):
         self.canvas = plotcanvas.TotalsAllelePlotCanvas()
         super().__init__(self.canvas)
@@ -349,7 +353,7 @@ class WidgetPlotCoords(WidgetPlot):
 
 
 class WidgetPlotLocal(WidgetPlot):
-    """ Creates a widget for the plotspace and plot interaction components of the local males plot."""
+    """ Creates a widget for the plotspace and plot interaction components of the local adult mated females plot."""
     def __init__(self, parent):
         """
         Parameters
