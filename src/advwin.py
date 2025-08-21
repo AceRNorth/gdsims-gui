@@ -190,7 +190,7 @@ class AdvancedWindow(QDialog):
         if self.relTimesFileCheckbox.isChecked() and Path(self.relTimesFilenameEdit.text()).exists():
             with open(self.relTimesFilenameEdit.text(), 'r') as file:
                 lines = file.readlines()
-                self.lastVals.newDriverStart = lines[0]
+                self.lastVals.newDriverStart = lines[0].strip()
 
         self.boundaryType = self.lastVals.boundaryType
         self.dispType = self.lastVals.dispType
@@ -657,7 +657,7 @@ class AdvancedWindow(QDialog):
         advSetInfo.tWake2 = (self.tWake2Label.text(), self.tWake2Label.toolTip())
         advSetInfo.alpha0Mean = (self.alpha0MeanLabel.text(), self.alpha0MeanLabel.toolTip())
         advSetInfo.alpha0Var = (self.alpha0VarLabel.text(), self.alpha0VarLabel.toolTip())
-        advSetInfo.alpha1 = (self.alpha1Label.text(), self.alpha1Label.toolTip())
+        advSetInfo.alpha1 = ((self.alpha1Label.text()).replace("\n", ""), self.alpha1Label.toolTip())  # keep single file rows
         advSetInfo.amp = (self.ampLabel.text(), self.ampLabel.toolTip())
         advSetInfo.rainfallFile = (self.rainfallFileLabel.text(), "")
         advSetInfo.resp = (self.respLabel.text(), self.respLabel.toolTip())

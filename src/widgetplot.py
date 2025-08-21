@@ -122,7 +122,10 @@ class WidgetPlotTotals(WidgetPlot):
         runNum = re.search(r"\d+", self.runsCB.currentText())[0]
         rgx = r"Totals\d+run" + runNum
         plotFile = [f for f in self.dataFiles if re.match(rgx, os.path.basename(f))][0]
-        self.canvas.plot(plotFile, self.checkboxState())
+        outputDir = os.path.dirname(plotFile)
+        paramsDir = os.path.dirname(outputDir)
+        relTimes = self.findRelTimes(paramsDir)
+        self.canvas.plot(plotFile, self.checkboxState(), relTimes)
 
     def findPlotFiles(self, outputDir):
         """
@@ -137,6 +140,21 @@ class WidgetPlotTotals(WidgetPlot):
                         if os.path.isfile(os.path.join(outputDir, "output_files", f))]
             self.dataFiles = [os.path.join(outputDir, "output_files", f)
                               for f in allFiles if re.match("Totals", os.path.basename(f))]
+
+    def findRelTimes(self, paramsDir):
+        relTimes = []
+        if os.path.exists(os.path.join(paramsDir, "paramsInfo.csv")):
+            params = np.loadtxt(os.path.join(paramsDir, "paramsInfo.csv"), delimiter=',', dtype=str,
+                                   skiprows=1, usecols=(2))
+            relTimesFile = params[38]
+            if relTimesFile == "None":
+                driverStart = int(params[12])
+                relTimes.append(driverStart)
+            else:
+                if os.path.exists(relTimesFile):
+                    data = np.loadtxt(relTimesFile)
+                    relTimes = data
+        return relTimes
 
 
 class WidgetPlotTotalsGen(WidgetPlotTotals):
@@ -193,6 +211,11 @@ class WidgetPlotTotalsGen(WidgetPlotTotals):
         self.fDRcheckbox.resize(self.fDRcheckbox.sizeHint())
         self.fDRcheckbox.setChecked(True)
 
+        self.relTimesCheckbox = QCheckBox("Release times")
+        self.relTimesCheckbox.setToolTip("Vertical lines at gene drive release days.")
+        self.relTimesCheckbox.resize(self.relTimesCheckbox.sizeHint())
+        self.relTimesCheckbox.setChecked(True)
+
     def createGridLayout(self):
         """ Places UI components on a grid layout. """
 
@@ -209,6 +232,7 @@ class WidgetPlotTotalsGen(WidgetPlotTotals):
         interactLayout.addWidget(self.fWRcheckbox)
         interactLayout.addWidget(self.fRRcheckbox)
         interactLayout.addWidget(self.fDRcheckbox)
+        interactLayout.addWidget(self.relTimesCheckbox)
         interactLayout.addWidget(self.plotBtn)
         interactLayout.addStretch()  # create a stretch of filler space between components
         interactBox.setLayout(interactLayout)
@@ -239,6 +263,8 @@ class WidgetPlotTotalsGen(WidgetPlotTotals):
             lines.append(6)
         if self.transmitCheckbox.isChecked() is True:
             lines.append(7)
+        if self.relTimesCheckbox.isChecked() is True:
+            lines.append(8)
         return lines
 
 

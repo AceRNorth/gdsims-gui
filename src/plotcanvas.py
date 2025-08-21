@@ -140,7 +140,7 @@ class TotalsGenPlotCanvas(PlotCanvas):
         """
         super().__init__(parent, width, height, dpi)
 
-    def plot(self, file, lines: list):  # sets variables of function (have to be lists)
+    def plot(self, file, lines: list, relTimes: list):  # sets variables of function (have to be lists)
         """
         Plots the selected lines on the canvas from the data file.
 
@@ -148,6 +148,8 @@ class TotalsGenPlotCanvas(PlotCanvas):
         ----------
         file : os.path for totals data file
         lines : list of the selected lines
+        relTimes : list: int
+            List of release times.
 
         Returns
         -------
@@ -176,15 +178,26 @@ class TotalsGenPlotCanvas(PlotCanvas):
                    "black",
                    "hotpink"]
 
+        y = []
         for line in lines:
-            y = []
-            if line == 6:
-                y = np.sum(total_females, axis=1).tolist()
-            if line == 7:
-                y = np.sum(total_females[:, (0, 1, 3)], axis=1).tolist()
-            if line >= 0 and line < 6:
-                y = total_females[:, line]
-            self.axes.plot(times, y, label=labels[line], color=colours[line])  # keep same colours for same type of line
+            if line == 8: # add vertical lines at release times
+                for i in range(0, len(relTimes)):
+                    label = None
+                    if i == 0:
+                        label = "release time"
+                    else:
+                        label = None
+                    self.axes.axvline(relTimes[i], np.amin(y), np.amax(y), c="royalblue", zorder=-1, alpha=0.7, lw=3, label=label)
+            else:
+                yLine = []
+                if line == 6:
+                    yLine = np.sum(total_females, axis=1).tolist()
+                if line == 7:
+                    yLine = np.sum(total_females[:, (0, 1, 3)], axis=1).tolist()
+                if line >= 0 and line < 6:
+                    yLine = total_females[:, line]
+                y.append(yLine)
+                self.axes.plot(times, yLine, label=labels[line], color=colours[line])  # keep same colours for same type of line
 
         self.axes.set_xlabel("Day")
         self.axes.set_ylabel("Total number of individuals")
@@ -209,7 +222,7 @@ class TotalsAllelePlotCanvas(PlotCanvas):
         """
         super().__init__(parent, width, height, dpi)
 
-    def plot(self, file, lines: list):  # sets variables of function (have to be lists)
+    def plot(self, file, lines: list, relTimes: list):  # sets variables of function (have to be lists)
         """
         Plots the selected lines on the canvas from the data file.
 
@@ -217,6 +230,8 @@ class TotalsAllelePlotCanvas(PlotCanvas):
         ----------
         file : os.path for totals data file
         lines : list of the selected lines
+        relTimes : list: int
+            List of release times.
 
         Returns
         -------

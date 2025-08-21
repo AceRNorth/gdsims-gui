@@ -602,9 +602,7 @@ class WidgetParams(QWidget):
                             alpha1=advParams.alpha1,
                             amp=advParams.amp,
                             resp=advParams.resp,
-                            recStart=(self.driverStartSB.value()
-                                      if advParams.relTimesFile is False
-                                      else advParams.newDriverStart),
+                            recStart=(self.driverStartSB.value() if advParams.relTimesFile is False else advParams.newDriverStart),
                             recEnd=self.maxTSB.value(),
                             recIntervalGlobal=1,
                             recIntervalLocal=self.recIntervalLocalSB.value(),
