@@ -60,7 +60,7 @@ class CoordsInputPlotCanvas(PlotCanvas):
         xNot = data[notRelSitesIndices, 0]
         yNot = data[notRelSitesIndices, 1]
 
-        self.axes.scatter(xRel, yRel, marker='.', color="royalblue", label="release sites")
+        self.axes.scatter(xRel, yRel, marker='*', color="royalblue", label="release sites")
         self.axes.scatter(xNot, yNot, marker='.', color="peru", label=None) # label None so don't show in legend
 
         if len(x) == 1:

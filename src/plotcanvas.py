@@ -9,6 +9,7 @@ from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
+import matplotlib as mpl
 from PyQt5.QtWidgets import QSizePolicy
 import numpy as np
 
@@ -40,10 +41,16 @@ class PlotCanvas(FigureCanvas):
 
         # for local - drive allele freq plots
         if colorbar:
-            mainCmap = ['aquamarine', 'mediumturquoise', 'darkcyan', 'steelblue', 'royalblue',
-                        'mediumblue', 'slateblue', 'darkviolet', 'indigo', 'black']
+            #mainCmap = ['aquamarine', 'mediumturquoise', 'darkcyan', 'steelblue', 'royalblue',
+            #            'mediumblue', 'slateblue', 'darkviolet', 'indigo', 'black']
+            viridisR = mpl.colormaps['viridis_r'].resampled(14)
+            # don't want edge colours in viridis so there's enough contrast with two
+            # additional cmap colours
+            viridisColours = viridisR(np.linspace(0.2, 0.8, 10))
+
             # add colours for no-population patch and wild-population patch
-            allColours = ['darkgray', 'lightsalmon'] + mainCmap
+            #allColours = ['darkgray', 'lightsalmon'] + mainCmap
+            allColours = np.vstack((mcolors.to_rgba("lightgray"), mcolors.to_rgba("hotpink"), viridisColours))
             self.cmap = mcolors.ListedColormap(allColours)
             bounds = [-2, -1, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
             self.cnorm = mcolors.BoundaryNorm(bounds, self.cmap.N)
@@ -169,14 +176,22 @@ class TotalsGenPlotCanvas(PlotCanvas):
                   "$F_{DR}$",
                   "$F_{WW}$+$F_{WD}$+\n$F_{DD}$+$F_{WR}$+\n$F_{RR}$+$F_{DR}$",
                   "$F_{WW}$+$F_{WD}$+\n$F_{WR}$"]
-        colours = ["mediumturquoise",
-                   "darkcyan",
+        colours = ["hotpink",
+                   "mediumturquoise",
                    "royalblue",
                    "slategray",
                    "rebeccapurple",
                    "darkviolet",
                    "black",
-                   "hotpink"]
+                   "crimson"]
+        linestyles = ["solid",
+                      "dashed",
+                      "solid",
+                      "dotted",
+                      "solid",
+                      "dashed",
+                      "solid",
+                      "dashed"]
 
         y = []
         for line in lines:
@@ -197,7 +212,7 @@ class TotalsGenPlotCanvas(PlotCanvas):
                 if line >= 0 and line < 6:
                     yLine = total_females[:, line]
                 y.append(yLine)
-                self.axes.plot(times, yLine, label=labels[line], color=colours[line])  # keep same colours for same type of line
+                self.axes.plot(times, yLine, label=labels[line], color=colours[line], linestyle=linestyles[line])  # keep same colours for same type of line
 
         self.axes.set_xlabel("Day")
         self.axes.set_ylabel("Total number of individuals")
