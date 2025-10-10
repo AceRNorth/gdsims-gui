@@ -221,7 +221,7 @@ class TotalsGenPlotCanvas(PlotCanvas):
 
 
 class TotalsAllelePlotCanvas(PlotCanvas):
-    """ Creates a plot figure of total males across the simulation area, classed by genotype. """
+    """ Creates a plot figure of total females across the simulation area, classed by genotype. """
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         """
         Parameters
