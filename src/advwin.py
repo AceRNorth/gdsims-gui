@@ -488,6 +488,7 @@ class AdvancedWindow(QDialog):
                                         "Hexagonal grid 55 patches",
                                         "Hexagonal grid 97 patches",
                                         "Hexagonal grid 199 patches",
+                                        "Uganda islands 726 patches, 40 release patches",
                                         "Custom"])
         self.coordsFileTypeCB.currentTextChanged.connect(self.coordsFileTypeState)
         self.coordsFileTypeCB.currentTextChanged.connect(self.enableApply)
@@ -707,6 +708,8 @@ class AdvancedWindow(QDialog):
                 file = self.dataDirPath / "coords_hex_97.txt"
             elif self.coordsFileTypeCB.currentText() == "Hexagonal grid 199 patches":
                 file = self.dataDirPath / "coords_hex_199.txt"
+            elif self.coordsFileTypeCB.currentText() == "Uganda islands 726 patches, 40 release patches":
+                file = self.dataDirPath / "coords_uganda_islands_726_40.txt"
             self.coordsFilenameEdit.setText(str(file.resolve()))
 
     def coordsFileCheckboxState(self):
