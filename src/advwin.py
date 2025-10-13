@@ -429,22 +429,25 @@ class AdvancedWindow(QDialog):
         self.rainfallFileLabel = QLabel("rainfall file")
         self.rainfallFileLabel.setToolTip("Rainfall data file")
         self.rainfallFileCheckbox = QCheckBox()
-        self.rainfallFileCheckbox.stateChanged.connect(lambda:
-                                                       self.checkboxState(self.rainfallFileCheckbox,
-                                                                          showLabelElements=[rainfallFileDialogBtn,
-                                                                                             self.respLabel,
-                                                                                             self.rainfallFilePreviewBtn],
-                                                                          showNumElements=[self.respSB],
-                                                                          showTextElements=[self.rainfallFilenameEdit],
-                                                                          hideLabelElements=[self.ampLabel],
-                                                                          hideNumElements=[self.ampSB]))
+        self.rainfallFileCheckbox.stateChanged.connect(self.rainfallFileCheckboxState)
         self.rainfallFileCheckbox.stateChanged.connect(self.enableApply)
+        
+        self.rainfallFileTypeCB = QComboBox()
+        self.rainfallFileTypeCB.addItems(["Uganda islands 365 days",
+                                          "Custom"])
+        self.rainfallFileTypeCB.currentTextChanged.connect(self.rainfallFileTypeState)
+        self.rainfallFileTypeCB.currentTextChanged.connect(self.enableApply)
+        self.rainfallFileTypeCB.hide()
 
         self.rainfallFilenameEdit = QLineEdit("")
         self.rainfallFilenameEdit.setReadOnly(True)
         self.rainfallFilenameEdit.textChanged.connect(self.enableApply)
-        rainfallFileDialogBtn = QPushButton("Select")
-        rainfallFileDialogBtn.clicked.connect(lambda: self.openFileDialog(self.rainfallFile, self.rainfallFilenameEdit))
+        self.rainfallFileDialogBtn = QPushButton("Select")
+        self.rainfallFileDialogBtn.clicked.connect(lambda: self.openFileDialog(self.rainfallFile, self.rainfallFilenameEdit))
+        self.rainfallFilePreviewBtn = QPushButton("Preview")
+        self.rainfallFilePreviewBtn.clicked.connect(lambda: self.openPlotPreview(self.rainfallFilenameEdit.text(),
+                                                                                 "Rainfall",
+                                                                                 self.validateRainfallFile(self.parentWindow.getMaxT())))
         self.respLabel = QLabel("responsiveness to rainfall")
         self.respLabel.setToolTip("Carrying capacity's responsiveness to rainfall contribution.")
         self.respSB = QDoubleSpinBox()
@@ -453,12 +456,8 @@ class AdvancedWindow(QDialog):
         self.respSB.setValue(0)
         self.respSB.resize(self.respSB.sizeHint())
         self.respSB.valueChanged.connect(self.enableApply)
-        self.rainfallFilePreviewBtn = QPushButton("Preview")
-        self.rainfallFilePreviewBtn.clicked.connect(lambda: self.openPlotPreview(self.rainfallFilenameEdit.text(),
-                                                                                 "Rainfall",
-                                                                                 self.validateRainfallFile(self.parentWindow.getMaxT())))
         self.rainfallFilenameEdit.hide()
-        rainfallFileDialogBtn.hide()
+        self.rainfallFileDialogBtn.hide()
         self.respLabel.hide()
         self.respSB.hide()
         self.rainfallFilePreviewBtn.hide()
@@ -607,31 +606,32 @@ class AdvancedWindow(QDialog):
         self.layout.addWidget(self.ampSB, 21, 3)
         self.layout.addWidget(self.rainfallFileLabel, 22, 0)
         self.layout.addWidget(self.rainfallFileCheckbox, 22, 1)
-        self.layout.addWidget(self.rainfallFilenameEdit, 23, 0, 1, 3)
-        self.layout.addWidget(rainfallFileDialogBtn, 23, 3)
-        self.layout.addWidget(self.respLabel, 24, 0)
-        self.layout.addWidget(self.respSB, 24, 1)
-        self.layout.addWidget(self.rainfallFilePreviewBtn, 24, 2, 1, 1)
-        self.layout.addWidget(line4, 25, 0, 1, 4)
-        self.layout.addWidget(modelAreaTitle, 26, 0)
-        self.layout.addWidget(self.boundaryTypeLabel, 27, 0)
-        self.layout.addWidget(self.boundaryTypeCB, 27, 1, 1, 1)
-        self.layout.addWidget(self.coordsFileLabel, 28, 0)
-        self.layout.addWidget(self.coordsFileCheckbox, 28, 1)
-        self.layout.addWidget(self.coordsFileTypeCB, 29, 1, 1, 1)
-        self.layout.addWidget(self.coordsFilePreviewBtn, 29, 2, 1, 1)
-        self.layout.addWidget(self.coordsFilenameEdit, 30, 0, 1, 3)
-        self.layout.addWidget(self.coordsFileDialogBtn, 30, 3)
-        self.layout.addWidget(line5, 31, 0, 1, 4)
-        self.layout.addWidget(inherTitle, 32, 0)
-        self.layout.addWidget(self.gammaLabel, 33, 0)
-        self.layout.addWidget(self.gammaSB, 33, 1)
-        self.layout.addWidget(line6, 34, 0, 1, 4)
-        self.layout.addWidget(releaseTitle, 35, 0)
-        self.layout.addWidget(self.relTimesFileLabel, 36, 0)
-        self.layout.addWidget(self.relTimesFileCheckbox, 36, 1)
-        self.layout.addWidget(self.relTimesFilenameEdit, 37, 0, 1, 3)
-        self.layout.addWidget(relTimesFileDialogBtn, 37, 3)
+        self.layout.addWidget(self.rainfallFileTypeCB, 23, 1)
+        self.layout.addWidget(self.rainfallFilePreviewBtn, 23, 2, 1, 1)
+        self.layout.addWidget(self.rainfallFilenameEdit, 24, 0, 1, 3)
+        self.layout.addWidget(self.rainfallFileDialogBtn, 24, 3)
+        self.layout.addWidget(self.respLabel, 25, 1)
+        self.layout.addWidget(self.respSB, 25, 2)
+        self.layout.addWidget(line4, 26, 0, 1, 4)
+        self.layout.addWidget(modelAreaTitle, 27, 0)
+        self.layout.addWidget(self.boundaryTypeLabel, 28, 0)
+        self.layout.addWidget(self.boundaryTypeCB, 28, 1, 1, 1)
+        self.layout.addWidget(self.coordsFileLabel, 29, 0)
+        self.layout.addWidget(self.coordsFileCheckbox, 29, 1)
+        self.layout.addWidget(self.coordsFileTypeCB, 30, 1, 1, 1)
+        self.layout.addWidget(self.coordsFilePreviewBtn, 30, 2, 1, 1)
+        self.layout.addWidget(self.coordsFilenameEdit, 31, 0, 1, 3)
+        self.layout.addWidget(self.coordsFileDialogBtn, 31, 3)
+        self.layout.addWidget(line5, 32, 0, 1, 4)
+        self.layout.addWidget(inherTitle, 33, 0)
+        self.layout.addWidget(self.gammaLabel, 34, 0)
+        self.layout.addWidget(self.gammaSB, 34, 1)
+        self.layout.addWidget(line6, 35, 0, 1, 4)
+        self.layout.addWidget(releaseTitle, 36, 0)
+        self.layout.addWidget(self.relTimesFileLabel, 37, 0)
+        self.layout.addWidget(self.relTimesFileCheckbox, 37, 1)
+        self.layout.addWidget(self.relTimesFilenameEdit, 38, 0, 1, 3)
+        self.layout.addWidget(relTimesFileDialogBtn, 38, 3)
         self.layout.addWidget(line7, 39, 0, 1, 4)
         self.layout.addWidget(self.okBtn, 40, 2, 1, 1)
         self.layout.addWidget(self.applyBtn, 40, 3, 1, 1)
@@ -668,6 +668,54 @@ class AdvancedWindow(QDialog):
         advSetInfo.relTimesFile = (self.relTimesFileLabel.text(), "")
 
         return advSetInfo
+
+    def rainfallFileCheckboxState(self):
+        """
+        Shows or hides UI components depending on the state of the rainfall file checkbox.
+        """
+        checked = self.rainfallFileCheckbox.isChecked()
+        if checked:
+            self.rainfallFileTypeCB.setCurrentText("Uganda islands 365 days")
+            file = self.dataDirPath / "rainfall_uganda_islands_365.txt"
+            self.rainfallFilenameEdit.setText(str(file.resolve()))
+            self.rainfallFileTypeCB.show()
+            self.rainfallFilePreviewBtn.show()
+            self.respLabel.show()
+            self.respSB.setValue(0)
+            self.respSB.show()
+            self.ampLabel.hide()
+            self.ampSB.setValue(0)
+            self.ampSB.hide()
+        else:
+            self.ampLabel.show()
+            self.ampSB.setValue(0)
+            self.ampSB.show()
+            self.rainfallFileTypeCB.hide()
+            self.rainfallFilenameEdit.clear()
+            self.rainfallFilenameEdit.hide()
+            self.rainfallFileDialogBtn.hide()
+            self.rainfallFilePreviewBtn.hide()
+            self.respLabel.hide()
+            self.respSB.setValue(0)
+            self.respSB.hide()
+            
+    def rainfallFileTypeState(self):
+        """
+        Shows/hides extra UI components depending on the rainfall file type selected,
+        and sets the corresponding rainfall filepaths.
+        """
+        if self.rainfallFileTypeCB.currentText() == "Custom":
+            self.rainfallFilenameEdit.clear()
+            self.rainfallFilenameEdit.show()
+            self.rainfallFileDialogBtn.show()
+        if self.rainfallFileTypeCB.currentText() != "Custom":
+            self.rainfallFilenameEdit.hide()
+            self.rainfallFilenameEdit.clear()
+            self.rainfallFileDialogBtn.hide()
+
+            if self.rainfallFileTypeCB.currentText() == "Uganda islands 365 days":
+                file = self.dataDirPath / "rainfall_uganda_islands_365.txt"
+            self.rainfallFilenameEdit.setText(str(file.resolve()))
 
     def boundaryTypeState(self):
         """  Shows/hides extra UI components depending on the boundary type selected. """
